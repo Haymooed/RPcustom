@@ -3,134 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Onyx — Login</title>
+<title>Onyx</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0f0b12;
-  --surface: #1a1420;
-  --surface2: #241c2c;
-  --border: rgba(255, 105, 180, 0.15);
-  --accent: #ff69b4;
-  --accent2: #ff1493;
-  --accent-glow: rgba(255, 105, 180, 0.3);
-  --text: #f8e8f0;
-  --text-dim: #b09eb0;
+  --bg: #0d1117;
+  --surface: #161b22;
+  --card: #1c2130;
+  --border: rgba(255,255,255,0.07);
+  --primary: #06b6d4;
+  --primary-2: #6366f1;
+  --grad: linear-gradient(135deg, #06b6d4, #6366f1);
+  --text: #e6edf3;
+  --text-2: #8b949e;
+  --red: #f85149;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Space Grotesk', sans-serif; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
+  font-family: 'Inter', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-image: radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.07) 0%, transparent 50%),
-                   radial-gradient(ellipse at 80% 20%, rgba(255, 20, 147, 0.05) 0%, transparent 45%);
+  background-image:
+    radial-gradient(ellipse at 30% 40%, rgba(6,182,212,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 70%, rgba(99,102,241,0.05) 0%, transparent 50%);
+}
+
+.wrap {
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  animation: fadeUp 0.35s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .card {
-  background: var(--surface);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 40px;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 0 40px rgba(255, 105, 180, 0.08), 0 20px 60px rgba(0,0,0,0.5);
-  animation: up 0.45s ease;
+  border-radius: 14px;
+  padding: 36px 32px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
 }
 
-@keyframes up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+  gap: 10px;
+}
 
-.logo { text-align: center; margin-bottom: 32px; }
-
-.logo-mark {
-  display: inline-flex;
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--grad);
+  border-radius: 12px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  background: linear-gradient(135deg, var(--accent2), var(--accent));
-  border-radius: 14px;
-  margin-bottom: 14px;
-  box-shadow: 0 0 24px var(--accent-glow);
+  box-shadow: 0 0 20px rgba(6,182,212,0.25);
 }
 
-.logo-mark svg { width: 26px; height: 26px; fill: #fff; }
+.logo-icon svg { width: 22px; height: 22px; fill: #fff; }
 
-.logo h1 {
-  font-size: 1.65rem;
+.logo-name {
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: -.02em;
-  background: linear-gradient(90deg, #fff, var(--accent));
+  background: var(--grad);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 4px;
+  letter-spacing: -0.02em;
 }
 
-.logo p { color: var(--text-dim); font-size: .85rem; }
+.logo-sub { font-size: 13px; color: var(--text-2); }
 
-label { display: block; color: var(--text-dim); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+.field { margin-bottom: 20px; }
 
-input {
-  width: 100%; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 12px; color: var(--text); font-size: .95rem; outline: none; transition: .2s; font-family: inherit;
+label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 7px;
 }
 
-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1); }
-input::placeholder { color: #504050; }
+.input-wrap { position: relative; }
 
-.field { margin-bottom: 24px; }
+input[type="password"], input[type="text"] {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  padding: 10px 40px 10px 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+
+input:focus {
+  border-color: rgba(6,182,212,0.5);
+  box-shadow: 0 0 0 3px rgba(6,182,212,0.08);
+}
+
+input::placeholder { color: #3d444d; }
+
+.eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-2);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.eye-btn:hover { color: var(--text); }
+.eye-btn svg { width: 16px; height: 16px; }
 
 .btn {
-  width: 100%; padding: 14px; border: none; border-radius: 12px;
-  background: linear-gradient(90deg, var(--accent2), var(--accent));
-  color: #fff; font-size: .95rem; font-weight: 700;
-  cursor: pointer; transition: .25s; font-family: inherit; letter-spacing: .02em;
-  box-shadow: 0 4px 20px var(--accent-glow);
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 8px;
+  background: var(--grad);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  box-shadow: 0 2px 16px rgba(6,182,212,0.2);
+  letter-spacing: 0.01em;
 }
 
-.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255, 105, 180, 0.4); }
-.btn:active { transform: translateY(0); }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(6,182,212,0.3); }
+.btn:active { transform: none; }
 
 .err {
-  color: #ff5555; background: rgba(255, 60, 60, 0.08); border: 1px solid rgba(255, 60, 60, 0.2);
-  border-radius: 10px; padding: 12px; font-size: .85rem; margin-bottom: 20px; display: none; text-align: center;
+  display: none;
+  background: rgba(248,81,73,0.08);
+  border: 1px solid rgba(248,81,73,0.2);
+  border-radius: 8px;
+  color: #f85149;
+  font-size: 13px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  text-align: center;
 }
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="logo">
-    <div class="logo-mark">
-      <svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+<div class="wrap">
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5L12 1zm0 2.18l7 3.12V11c0 4.52-3.05 8.78-7 10.01C8.05 19.78 5 15.52 5 11V6.3l7-3.12z"/></svg>
+      </div>
+      <div class="logo-name">Onyx</div>
+      <div class="logo-sub">Sign in to your dashboard</div>
     </div>
-    <h1>Onyx</h1>
-    <p>Sign in to manage your presence</p>
+
+    <div id="err" class="err"></div>
+
+    <form onsubmit="login(event)">
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="pw" placeholder="Enter access password" required autofocus>
+          <button type="button" class="eye-btn" onclick="togglePw()">
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn" type="submit" id="loginBtn">Sign In</button>
+    </form>
   </div>
-  <div id="err" class="err"></div>
-  <form onsubmit="login(event)">
-    <div class="field">
-      <label>Access Password</label>
-      <input type="password" id="pw" placeholder="Enter password" required autofocus>
-    </div>
-    <button class="btn" type="submit">Sign In</button>
-  </form>
 </div>
+
 <script>
+function togglePw() {
+  const input = document.getElementById('pw');
+  const icon = document.getElementById('eyeIcon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>';
+  } else {
+    input.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
 async function login(e) {
   e.preventDefault();
-  const pw = document.getElementById('pw').value;
+  const btn = document.getElementById('loginBtn');
+  btn.textContent = 'Signing in…';
+  btn.disabled = true;
   try {
     const r = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pw })
+      body: JSON.stringify({ password: document.getElementById('pw').value })
     });
     const d = await r.json();
     if (d.success) {
@@ -139,11 +234,15 @@ async function login(e) {
       const el = document.getElementById('err');
       el.textContent = d.error || 'Invalid password';
       el.style.display = 'block';
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
     }
-  } catch (err) {
+  } catch {
     const el = document.getElementById('err');
-    el.textContent = 'Connection error';
+    el.textContent = 'Connection error — try again';
     el.style.display = 'block';
+    btn.textContent = 'Sign In';
+    btn.disabled = false;
   }
 }
 </script>

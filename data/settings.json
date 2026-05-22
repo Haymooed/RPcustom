@@ -1,0 +1,18 @@
+{
+  "webhookUrl": "",
+  "questNotifications": false,
+  "autoClaimQuests": false,
+  "presenceRotation": {
+    "enabled": false,
+    "intervalMinutes": 5,
+    "presences": []
+  },
+  "idleSpoof": {
+    "enabled": false,
+    "timeoutMinutes": 10
+  },
+  "keywordAlerts": {
+    "enabled": false,
+    "keywords": []
+  }
+}

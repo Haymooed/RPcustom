@@ -3,836 +3,1506 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Onyx Panel — Pink Edition</title>
+<title>Onyx</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0f0b12;
-  --surface: #1a1420;
-  --surface2: #241c2c;
-  --surface3: #2d2436;
-  --border: rgba(255, 105, 180, 0.15);
-  --border-hover: rgba(255, 105, 180, 0.3);
-  --accent: #ff69b4; /* Hot Pink */
-  --accent2: #ff1493; /* Deep Pink */
-  --accent-glow: rgba(255, 105, 180, 0.3);
-  --text: #f8e8f0;
-  --text-dim: #b09eb0;
-  --text-muted: #6e5e6e;
-  --green: #00d97e;
-  --red: #ff4d4d;
-  --yellow: #ffaa00;
-  --sidebar-width: 240px;
+  --bg: #0d1117;
+  --surface: #161b22;
+  --card: #1c2130;
+  --card-2: #21262d;
+  --border: rgba(255,255,255,0.07);
+  --border-focus: rgba(6,182,212,0.4);
+  --primary: #06b6d4;
+  --primary-2: #6366f1;
+  --grad: linear-gradient(135deg, #06b6d4, #6366f1);
+  --grad-text: linear-gradient(135deg, #22d3ee, #818cf8);
+  --text: #e6edf3;
+  --text-2: #8b949e;
+  --text-3: #3d444d;
+  --green: #3fb950;
+  --yellow: #d29922;
+  --red: #f85149;
+  --sidebar-w: 224px;
+  --radius: 8px;
+  --radius-lg: 12px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Space Grotesk', sans-serif; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
+  font-family: 'Inter', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
+  font-size: 13.5px;
+  line-height: 1.5;
+  height: 100vh;
   display: flex;
-  background-image: radial-gradient(ellipse at 0% 0%, rgba(255, 105, 180, 0.08) 0%, transparent 40%),
-                   radial-gradient(ellipse at 100% 100%, rgba(255, 20, 147, 0.05) 0%, transparent 40%);
+  overflow: hidden;
 }
 
-/* Sidebar */
+/* ── Sidebar ── */
 .sidebar {
-  width: var(--sidebar-width);
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
   background: var(--surface);
   border-right: 1px solid var(--border);
-  height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  padding: 16px 10px;
+  overflow: hidden;
 }
 
-.sidebar-header {
-  padding: 24px;
+.brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 9px;
+  padding: 6px 10px 18px;
   border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
 }
 
 .brand-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--accent2), var(--accent));
-  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  background: var(--grad);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 16px var(--accent-glow);
+  flex-shrink: 0;
+  box-shadow: 0 0 14px rgba(6,182,212,0.25);
 }
 
-.brand-icon svg { width: 18px; height: 18px; fill: #fff; }
+.brand-icon svg { width: 16px; height: 16px; fill: #fff; }
 
 .brand-name {
-  font-size: 1.2rem;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: -.02em;
-  background: linear-gradient(90deg, #fff, var(--accent));
+  background: var(--grad-text);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.nav-links {
-  padding: 16px;
-  flex: 1;
+  letter-spacing: -0.02em;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  color: var(--text-dim);
-  text-decoration: none;
-  border-radius: 10px;
-  margin-bottom: 4px;
-  transition: .2s;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  color: var(--text-2);
   cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  font-size: 13px;
+  font-weight: 500;
+  user-select: none;
   border: 1px solid transparent;
+  margin-bottom: 2px;
 }
 
-.nav-item i { width: 18px; text-align: center; }
+.nav-item:hover { background: var(--card); color: var(--text); }
+.nav-item.active { background: rgba(6,182,212,0.1); color: #22d3ee; border-color: rgba(6,182,212,0.18); }
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
-.nav-item:hover {
-  background: rgba(255, 105, 180, 0.05);
-  color: var(--text);
-}
-
-.nav-item.active {
-  background: rgba(255, 105, 180, 0.1);
-  color: var(--accent);
-  border-color: var(--border);
-}
+.nav-sep { height: 1px; background: var(--border); margin: 8px 4px; }
 
 .sidebar-footer {
-  padding: 16px;
-  border-top: 1px solid var(--border);
+  margin-top: auto;
+  padding: 12px 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
-/* Main Content */
-.main-content {
-  margin-left: var(--sidebar-width);
+.status-info { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text-3);
+  flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.dot.connected { background: var(--green); box-shadow: 0 0 6px rgba(63,185,80,0.5); }
+.dot.connecting { background: var(--yellow); animation: blink 1s infinite; }
+.dot.error { background: var(--red); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+.status-name { font-size: 12.5px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.footer-btns { display: flex; gap: 6px; }
+
+.btn-sm {
   flex: 1;
-  padding: 32px;
-  max-width: calc(100vw - var(--sidebar-width));
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+  text-align: center;
 }
 
-.section { display: none; animation: fadeIn 0.3s ease; }
+.btn-sm:hover { color: var(--text); border-color: rgba(255,255,255,0.12); }
+.btn-sm.primary { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 2px 10px rgba(6,182,212,0.2); }
+.btn-sm.primary:hover { box-shadow: 0 2px 14px rgba(6,182,212,0.35); }
+.btn-sm.danger { background: rgba(248,81,73,0.1); color: var(--red); border-color: rgba(248,81,73,0.2); }
+.btn-sm.danger:hover { background: rgba(248,81,73,0.18); }
+
+/* ── Main ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.topbar {
+  height: 50px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  flex-shrink: 0;
+}
+
+.topbar-title { font-size: 14px; font-weight: 600; }
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px;
+}
+
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
+
+/* ── Sections ── */
+.section { display: none; }
 .section.active { display: block; }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ── Cards ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 14px;
 }
 
-.header {
+.card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
-.header h2 { font-size: 1.5rem; font-weight: 700; }
-
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
-@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
-
-/* Cards & Components */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; height: 100%; }
 .card-title {
-  font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
-  color: var(--accent); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
-.field { margin-bottom: 16px; }
-.field label { display: block; font-size: .7rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+.card-title svg { width: 13px; height: 13px; stroke: var(--primary); fill: none; stroke-width: 2; }
 
-input[type=text], input[type=password], input[type=url], input[type=number], input[type=datetime-local], select, textarea {
-  width: 100%; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 10px; color: var(--text); font-size: .9rem; outline: none; transition: .2s; font-family: inherit;
+/* ── Layout ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.cols { display: flex; gap: 14px; }
+.cols > .card { flex: 1; margin-bottom: 0; }
+
+/* ── Form elements ── */
+.field { display: flex; flex-direction: column; gap: 5px; }
+
+label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
-input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1); }
+input, select, textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  padding: 8px 11px;
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+  font-family: inherit;
+  width: 100%;
+}
 
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(6,182,212,0.07);
+}
+
+input::placeholder, textarea::placeholder { color: var(--text-3); }
+select option { background: var(--card); }
+textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+.input-row { display: flex; gap: 8px; align-items: flex-end; }
+.input-row .field { flex: 1; }
+.form-gap { display: flex; flex-direction: column; gap: 12px; }
+
+/* ── Buttons ── */
 .btn {
-  padding: 10px 20px; border: none; border-radius: 10px; font-size: .85rem; font-weight: 700; cursor: pointer;
-  transition: .2s; font-family: inherit; display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
 }
 
-.btn-primary { background: linear-gradient(90deg, var(--accent2), var(--accent)); color: #fff; box-shadow: 0 4px 15px var(--accent-glow); }
-.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4); }
-.btn-ghost { background: rgba(255, 105, 180, 0.08); border: 1px solid var(--border); color: var(--accent); }
-.btn-ghost:hover { background: rgba(255, 105, 180, 0.15); }
-.btn-danger { background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.2); color: var(--red); }
-.btn-danger:hover { background: rgba(255, 77, 77, 0.2); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.btn-full { width: 100%; justify-content: center; }
 
-/* Presence Preview */
-.preview { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; gap: 16px; align-items: flex-start; margin-top: 16px; }
-.prev-img { width: 64px; height: 64px; border-radius: 10px; background: var(--surface3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 1.5rem; overflow: hidden; }
-.prev-img img { width: 100%; height: 100%; object-fit: cover; }
-.prev-type { font-size: .65rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
-.prev-name { font-size: 1rem; font-weight: 700; color: #fff; }
-.prev-details, .prev-state { font-size: .85rem; color: var(--text-dim); margin-top: 2px; }
+.btn-primary { background: var(--grad); color: #fff; box-shadow: 0 2px 10px rgba(6,182,212,0.2); }
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(6,182,212,0.3); }
 
-/* Connection Status */
-.status-card { display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; }
-.dot { width: 10px; height: 10px; border-radius: 50%; }
-.dot-g { background: var(--green); box-shadow: 0 0 10px var(--green); }
-.dot-y { background: var(--yellow); box-shadow: 0 0 10px var(--yellow); }
-.dot-r { background: var(--red); box-shadow: 0 0 10px var(--red); }
-.status-info { flex: 1; }
-.status-tag { font-weight: 700; font-size: 0.9rem; }
-.status-sub { font-size: 0.75rem; color: var(--text-dim); }
+.btn-ghost { background: var(--card-2); color: var(--text-2); border: 1px solid var(--border); }
+.btn-ghost:hover:not(:disabled) { color: var(--text); border-color: rgba(255,255,255,0.12); }
 
-/* Toggles */
-.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-.toggle-row:last-child { border-bottom: none; }
-.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface3); transition: .4s; border-radius: 24px; border: 1px solid var(--border); }
-.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--text-muted); transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--accent2); border-color: var(--accent); }
-input:checked + .slider:before { transform: translateX(20px); background-color: white; }
+.btn-danger { background: rgba(248,81,73,0.1); color: var(--red); border: 1px solid rgba(248,81,73,0.2); }
+.btn-danger:hover:not(:disabled) { background: rgba(248,81,73,0.18); }
 
-/* Lists */
-.row-list { display: grid; gap: 10px; margin-top: 10px; }
-.row-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; }
-.ri-main { flex: 1; }
-.tag { background: rgba(255, 105, 180, 0.15); color: var(--accent); padding: 2px 8px; border-radius: 99px; font-size: .65rem; font-weight: 700; margin-right: 6px; }
+.icon-btn {
+  width: 28px; height: 28px;
+  border: none; background: transparent;
+  border-radius: 6px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-2); transition: all 0.12s; flex-shrink: 0;
+}
 
-/* Quests */
-.quest-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
-.quest-icon { width: 48px; height: 48px; border-radius: 10px; background: var(--surface3); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.quest-icon img { width: 100%; height: 100%; object-fit: cover; }
-.quest-info { flex: 1; }
-.quest-log { background: #0a080d; border: 1px solid var(--border); border-radius: 12px; padding: 16px; height: 300px; overflow-y: auto; font-family: monospace; font-size: .8rem; color: #d0c0d0; line-height: 1.6; }
+.icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.icon-btn.del:hover { background: rgba(248,81,73,0.1); color: var(--red); }
+.icon-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-/* Toast & Save Bar */
-.save-bar { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; background: var(--surface); border: 1px solid var(--accent); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 20px; z-index: 200; transform: translateY(100px); transition: .3s; }
-.save-bar.active { transform: translateY(0); }
-.toast { position: fixed; top: 24px; right: 24px; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 300; animation: slideIn 0.3s ease; }
-.tok { background: #1a2a1a; border: 1px solid var(--green); color: var(--green); }
-.terr { background: #2a1a1a; border: 1px solid var(--red); color: var(--red); }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+/* ── Toggle ── */
+.toggle-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; }
+.toggle-info { flex: 1; }
+.toggle-label { font-size: 13.5px; font-weight: 500; color: var(--text); }
+.toggle-desc { font-size: 12px; color: var(--text-2); margin-top: 1px; }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .sidebar { width: 60px; }
-  .brand-name, .nav-item span { display: none; }
-  .main-content { margin-left: 60px; padding: 20px; max-width: calc(100vw - 60px); }
-  .nav-item { padding: 12px; justify-content: center; }
+.toggle {
+  width: 38px; height: 21px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 11px; cursor: pointer;
+  position: relative; transition: all 0.18s; flex-shrink: 0;
+}
+
+.toggle.on { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 8px rgba(6,182,212,0.3); }
+.toggle::after {
+  content: ''; position: absolute;
+  width: 15px; height: 15px;
+  background: rgba(255,255,255,0.45); border-radius: 50%;
+  top: 2px; left: 2px; transition: all 0.18s;
+}
+.toggle.on::after { left: 19px; background: #fff; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 7px; border-radius: 4px;
+  font-size: 10.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+.badge-cyan   { background: rgba(6,182,212,0.12);  color: #22d3ee; }
+.badge-green  { background: rgba(63,185,80,0.12);  color: #3fb950; }
+.badge-red    { background: rgba(248,81,73,0.12);  color: #f85149; }
+.badge-yellow { background: rgba(210,153,34,0.12); color: #d29922; }
+.badge-purple { background: rgba(99,102,241,0.12); color: #818cf8; }
+.badge-gray   { background: rgba(255,255,255,0.06);color: var(--text-2); }
+
+/* ── Quest cards ── */
+.quest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(256px, 1fr)); gap: 10px; }
+
+.quest-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color 0.12s;
+}
+.quest-card:hover { border-color: rgba(6,182,212,0.2); }
+.quest-game { font-size: 13.5px; font-weight: 600; }
+.quest-name { font-size: 12px; color: var(--text-2); }
+.quest-foot { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+
+/* ── Terminal ── */
+.terminal {
+  background: #010409; border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+  height: 240px; overflow-y: auto; color: #8b949e; line-height: 1.8;
+}
+.terminal::-webkit-scrollbar { width: 4px; }
+.terminal::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); }
+.log-ok   { color: #3fb950; }
+.log-err  { color: #f85149; }
+.log-info { color: #58a6ff; }
+.log-dim  { color: #484f58; }
+
+/* ── Preview ── */
+.rpc-preview {
+  background: #1e2130; border: 1px solid rgba(6,182,212,0.12);
+  border-radius: var(--radius-lg); padding: 14px; min-height: 100px;
+}
+.preview-type { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #22d3ee; margin-bottom: 5px; }
+.preview-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.preview-detail { font-size: 12.5px; color: var(--text-2); }
+
+/* ── Item list ── */
+.item-list { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+
+.item-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 7px 10px; font-size: 13px;
+}
+.item-row .it { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-row .im { font-size: 11px; color: var(--text-2); white-space: nowrap; }
+
+/* ── Quest banner ── */
+.quest-banner {
+  background: rgba(6,182,212,0.07); border: 1px solid rgba(6,182,212,0.18);
+  border-radius: var(--radius-lg); padding: 11px 14px;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.quest-banner-dot {
+  width: 7px; height: 7px; background: var(--primary);
+  border-radius: 50%; animation: blink 1.2s infinite;
+}
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left; padding: 8px 12px; font-size: 10.5px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text-2); border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.018); }
+td.dim { color: var(--text-2); font-size: 12px; }
+
+/* ── Stats ── */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+.stat-val {
+  font-size: 26px; font-weight: 700;
+  background: var(--grad-text); -webkit-background-clip: text;
+  background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1; margin-bottom: 4px;
+}
+.stat-lbl { font-size: 12px; color: var(--text-2); }
+
+/* ── Save bar ── */
+#saveBar {
+  position: fixed; bottom: 20px; right: 22px;
+  background: var(--card); border: 1px solid rgba(6,182,212,0.3);
+  border-radius: var(--radius-lg); padding: 11px 14px;
+  display: none; align-items: center; gap: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5); z-index: 200;
+  animation: fadeUp 0.2s ease;
+}
+#saveBar.visible { display: flex; }
+.save-msg { font-size: 12.5px; color: var(--text-2); }
+
+/* ── Toasts ── */
+#toasts {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column-reverse; gap: 8px;
+  z-index: 500; pointer-events: none;
+}
+.toast {
+  padding: 9px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500;
+  animation: fadeUp 0.2s ease; border: 1px solid; white-space: nowrap;
+}
+.toast.ok   { background: rgba(63,185,80,0.12);  border-color: rgba(63,185,80,0.3);  color: #3fb950; }
+.toast.err  { background: rgba(248,81,73,0.12);  border-color: rgba(248,81,73,0.3);  color: #f85149; }
+.toast.info { background: rgba(6,182,212,0.12);  border-color: rgba(6,182,212,0.3);  color: #22d3ee; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── Responsive ── */
+@media (max-width: 820px) {
+  .sidebar { width: 52px; min-width: 52px; padding: 12px 6px; }
+  .brand-name, .nav-item span, .sidebar-footer .status-name, .footer-btns { display: none; }
+  .brand { justify-content: center; padding: 6px; }
+  .nav-item { justify-content: center; padding: 9px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .cols { flex-direction: column; }
 }
 </style>
 </head>
 <body>
 
-<div class="sidebar">
-  <div class="sidebar-header">
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="brand">
     <div class="brand-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5L12 1zm0 2.18l7 3.12V11c0 4.52-3.05 8.78-7 10.01C8.05 19.78 5 15.52 5 11V6.3l7-3.12z"/></svg>
     </div>
-    <span class="brand-name">Onyx Panel</span>
+    <span class="brand-name">Onyx</span>
   </div>
-  <div class="nav-links">
-    <div class="nav-item active" onclick="showSection('presence')"><i class="fas fa-id-card"></i> <span>Presence</span></div>
-    <div class="nav-item" onclick="showSection('quests')"><i class="fas fa-khanda"></i> <span>Quests</span></div>
-    <div class="nav-item" onclick="showSection('automation')"><i class="fas fa-robot"></i> <span>Automation</span></div>
-    <div class="nav-item" onclick="showSection('messages')"><i class="fas fa-paper-plane"></i> <span>Messages</span></div>
-    <div class="nav-item" onclick="showSection('utility')"><i class="fas fa-tools"></i> <span>Utility</span></div>
+
+  <div data-sec="presence" class="nav-item active" onclick="showSection(this)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
+    <span>Presence</span>
   </div>
+  <div data-sec="quests" class="nav-item" onclick="showSection(this)">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <span>Quests</span>
+  </div>
+  <div data-sec="automation" class="nav-item" onclick="showSection(this)">
+    <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <span>Automation</span>
+  </div>
+  <div data-sec="messages" class="nav-item" onclick="showSection(this)">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span>Messages</span>
+  </div>
+  <div data-sec="utility" class="nav-item" onclick="showSection(this)">
+    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+    <span>Utility</span>
+  </div>
+  <div class="nav-sep"></div>
+  <div data-sec="settings" class="nav-item" onclick="showSection(this)">
+    <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <span>Settings</span>
+  </div>
+
   <div class="sidebar-footer">
-    <a href="/login" class="nav-item" style="color: var(--red)"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
-  </div>
-</div>
-
-<div class="main-content">
-  <!-- Status Card -->
-  <div class="status-card">
-    <div id="statusDot" class="dot dot-gray"></div>
     <div class="status-info">
-      <div id="statusTag" class="status-tag">Checking...</div>
-      <div id="statusSub" class="status-sub">Attempting to connect to backend</div>
+      <div class="dot" id="footDot"></div>
+      <span class="status-name" id="footTag">Not connected</span>
     </div>
-    <button id="connectBtn" class="btn btn-primary" onclick="toggleConnect()"><i class="fas fa-plug"></i> Connect</button>
+    <div class="footer-btns">
+      <button class="btn-sm primary" id="connectBtn" onclick="toggleConnect()">Connect</button>
+      <button class="btn-sm danger" id="disconnectBtn" style="display:none" onclick="toggleConnect()">Disconnect</button>
+    </div>
+    <button class="btn-sm" onclick="location.href='/login'" style="width:100%;margin-top:6px">Sign Out</button>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="topbarTitle">Presence</span>
   </div>
 
-  <!-- Presence Section -->
-  <div id="presence" class="section active">
-    <div class="header"><h2>Presence & RPC</h2></div>
-    <div class="grid">
+  <div class="content">
+
+    <!-- ════════════ PRESENCE ════════════ -->
+    <div id="sec-presence" class="section active">
+
+      <!-- Connection -->
       <div class="card">
-        <div class="card-title"><i class="fas fa-cog"></i> General Settings</div>
-        <div class="field">
-          <label>Discord Token</label>
-          <div style="display:flex; gap:8px">
-            <input type="password" id="token" placeholder="mfa.xxxx...">
-            <button class="btn btn-ghost" onclick="saveToken()"><i class="fas fa-save"></i></button>
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="var(--primary)" stroke="none"/></svg>
+            Connection
           </div>
         </div>
-        <div class="field">
-          <label>Status</label>
-          <select id="status" onchange="markDirty()">
-            <option value="online">Online</option>
-            <option value="idle">Idle</option>
-            <option value="dnd">Do Not Disturb</option>
-            <option value="invisible">Invisible</option>
-          </select>
+        <div class="grid-2">
+          <div class="form-gap">
+            <div class="field">
+              <label>Discord Token</label>
+              <div class="input-row">
+                <input type="password" id="tokenInput" placeholder="Your Discord token" oninput="markDirty()" style="flex:1">
+                <button class="btn btn-ghost" onclick="validateToken()">Validate</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Status</label>
+              <select id="statusSelect" onchange="markDirty()">
+                <option value="online">🟢 Online</option>
+                <option value="idle">🟡 Idle</option>
+                <option value="dnd">🔴 Do Not Disturb</option>
+                <option value="invisible">⚫ Invisible</option>
+              </select>
+            </div>
+          </div>
+          <div id="tokenValidResult" style="display:flex;align-items:center;justify-content:center;color:var(--text-2);font-size:13px;text-align:center">
+            Click "Validate" to check your token
+          </div>
         </div>
-        <div class="toggle-row">
+      </div>
+
+      <!-- RPC Editor + Preview -->
+      <div class="cols">
+        <div class="card" style="flex:1.5">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              Rich Presence
+            </div>
+            <div class="toggle" id="rpcToggle" onclick="this.classList.toggle('on');markDirty()"></div>
+          </div>
+          <div class="form-gap">
+            <div class="grid-2">
+              <div class="field">
+                <label>Activity Type</label>
+                <select id="actType" onchange="updatePreview();markDirty()">
+                  <option value="PLAYING">Playing</option>
+                  <option value="STREAMING">Streaming</option>
+                  <option value="LISTENING">Listening</option>
+                  <option value="WATCHING">Watching</option>
+                  <option value="COMPETING">Competing</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Application ID</label>
+                <input type="text" id="appId" placeholder="1234567890" oninput="updatePreview();markDirty()">
+              </div>
+            </div>
+            <div class="field">
+              <label>Name</label>
+              <input type="text" id="rpcName" placeholder="What are you doing?" oninput="updatePreview();markDirty()">
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label>Details</label>
+                <input type="text" id="rpcDetails" placeholder="Details line" oninput="updatePreview();markDirty()">
+              </div>
+              <div class="field">
+                <label>State</label>
+                <input type="text" id="rpcState" placeholder="State line" oninput="updatePreview();markDirty()">
+              </div>
+            </div>
+            <div class="field" id="streamUrlField" style="display:none">
+              <label>Stream URL</label>
+              <input type="text" id="streamUrl" placeholder="https://twitch.tv/..." oninput="markDirty()">
+            </div>
+            <div class="grid-2">
+              <div class="field"><label>Large Image</label><input type="text" id="largeImg" placeholder="URL or asset key" oninput="markDirty()"></div>
+              <div class="field"><label>Large Text</label><input type="text" id="largeText" placeholder="Hover text" oninput="markDirty()"></div>
+            </div>
+            <div class="grid-2">
+              <div class="field"><label>Small Image</label><input type="text" id="smallImg" placeholder="URL or asset key" oninput="markDirty()"></div>
+              <div class="field"><label>Small Text</label><input type="text" id="smallText" placeholder="Hover text" oninput="markDirty()"></div>
+            </div>
+            <div class="grid-2">
+              <div class="field"><label>Button 1 Label</label><input type="text" id="btn1text" placeholder="Click here" oninput="markDirty()"></div>
+              <div class="field"><label>Button 1 URL</label><input type="text" id="btn1url" placeholder="https://..." oninput="markDirty()"></div>
+            </div>
+            <div class="grid-2">
+              <div class="field"><label>Button 2 Label</label><input type="text" id="btn2text" placeholder="Click here" oninput="markDirty()"></div>
+              <div class="field"><label>Button 2 URL</label><input type="text" id="btn2url" placeholder="https://..." oninput="markDirty()"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Show Elapsed Time</div></div>
+              <div class="toggle" id="elapsedToggle" onclick="this.classList.toggle('on');markDirty()"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;min-width:200px;flex:1">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title" style="margin-bottom:12px">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Live Preview
+            </div>
+            <div class="rpc-preview">
+              <div class="preview-type" id="prevType">PLAYING</div>
+              <div class="preview-name" id="prevName">Onyx</div>
+              <div class="preview-detail" id="prevDetails" style="display:none"></div>
+              <div class="preview-detail" id="prevState" style="display:none"></div>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                Custom Status
+              </div>
+              <div class="toggle" id="csToggle" onclick="this.classList.toggle('on');markDirty()"></div>
+            </div>
+            <div class="form-gap">
+              <div class="field"><label>Status Text</label><input type="text" id="csText" placeholder="What's happening?" oninput="markDirty()"></div>
+              <div class="field"><label>Emoji</label><input type="text" id="csEmoji" placeholder="😊 or :custom:" oninput="markDirty()"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Presence Rotation -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+            Presence Rotation
+          </div>
+          <div class="toggle" id="rotToggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="form-gap">
+          <div class="input-row" style="align-items:flex-end">
+            <div class="field" style="max-width:160px">
+              <label>Interval (minutes)</label>
+              <input type="number" id="rotInterval" value="5" min="1">
+            </div>
+            <button class="btn btn-ghost" onclick="saveSettings()">Apply</button>
+          </div>
           <div>
-            <strong>Enable RPC</strong>
-            <div style="font-size:0.75rem; color:var(--text-dim)">Show custom activity on profile</div>
+            <div style="font-size:12px;color:var(--text-2);margin-bottom:8px">Add at least 2 presences to rotate through</div>
+            <div class="input-row">
+              <div class="field"><label>Type</label>
+                <select id="rotType">
+                  <option value="PLAYING">Playing</option>
+                  <option value="LISTENING">Listening</option>
+                  <option value="WATCHING">Watching</option>
+                  <option value="COMPETING">Competing</option>
+                </select>
+              </div>
+              <div class="field"><label>Name</label><input type="text" id="rotName" placeholder="e.g. Spotify"></div>
+              <div class="field"><label>App ID (opt)</label><input type="text" id="rotAppId" placeholder="Optional"></div>
+              <button class="btn btn-ghost" style="align-self:flex-end" onclick="addRotEntry()">Add</button>
+            </div>
+            <div class="item-list" id="rotList"></div>
           </div>
-          <label class="switch"><input type="checkbox" id="rpc_enabled" onchange="markDirty()"><span class="slider"></span></label>
         </div>
       </div>
 
+      <!-- Idle Spoof -->
       <div class="card">
-        <div class="card-title"><i class="fas fa-eye"></i> Live Preview</div>
-        <div class="preview">
-          <div id="prevImg" class="prev-img"><i class="fas fa-image"></i></div>
-          <div>
-            <div id="prevType" class="prev-type">PLAYING</div>
-            <div id="prevName" class="prev-name">Onyx</div>
-            <div id="prevDetails" class="prev-details"></div>
-            <div id="prevState" class="prev-state"></div>
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Idle Spoofing
+          </div>
+          <div class="toggle" id="idleToggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="input-row" style="align-items:flex-end">
+          <div class="field">
+            <label>Go idle after (minutes of no panel activity)</label>
+            <input type="number" id="idleTimeout" value="10" min="1" max="120">
+          </div>
+          <button class="btn btn-ghost" onclick="saveSettings()">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ QUESTS ════════════ -->
+    <div id="sec-quests" class="section">
+
+      <div id="questBanner" class="quest-banner" style="display:none">
+        <div class="quest-banner-dot"></div>
+        <span id="questBannerText">Running quest…</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            Quest Controls
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" onclick="fetchQuests()">↻ Refresh</button>
+            <button class="btn btn-primary" onclick="startQuests()">Start All</button>
+            <button class="btn btn-danger" id="stopQuestBtn" style="display:none" onclick="stopQuests()">Stop</button>
           </div>
         </div>
-        <div style="margin-top: 20px" class="field">
-          <label>Activity Type</label>
-          <select id="rpc_type" onchange="markDirty();toggleStreamUrl();updatePreview()">
-            <option value="PLAYING">Playing</option>
-            <option value="STREAMING">Streaming</option>
-            <option value="LISTENING">Listening to</option>
-            <option value="WATCHING">Watching</option>
-            <option value="COMPETING">Competing in</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Activity Name</label>
-          <input type="text" id="rpc_name" placeholder="Onyx" oninput="markDirty();updatePreview()">
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><i class="fas fa-info-circle"></i> RPC Details</div>
-        <div class="field">
-          <label>Application ID</label>
-          <input type="text" id="rpc_application_id" placeholder="e.g. 123456789012345678" oninput="markDirty()">
-        </div>
-        <div class="field">
-          <label>Details</label>
-          <input type="text" id="rpc_details" placeholder="What are you doing?" oninput="markDirty();updatePreview()">
-        </div>
-        <div class="field">
-          <label>State</label>
-          <input type="text" id="rpc_state" placeholder="Current state" oninput="markDirty();updatePreview()">
-        </div>
-        <div id="streamUrlField" class="field" style="display:none">
-          <label>Twitch URL</label>
-          <input type="text" id="rpc_stream_url" placeholder="https://twitch.tv/..." oninput="markDirty()">
-        </div>
-        <div class="toggle-row">
-          <div><strong>Show Elapsed Time</strong></div>
-          <label class="switch"><input type="checkbox" id="rpc_show_elapsed" onchange="markDirty()"><span class="slider"></span></label>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><i class="fas fa-image"></i> Assets</div>
-        <div class="field">
-          <label>Large Image (URL or Key)</label>
-          <input type="text" id="rpc_large_image" placeholder="https://... or asset key" oninput="markDirty();updatePreview()">
-        </div>
-        <div class="field">
-          <label>Large Image Text</label>
-          <input type="text" id="rpc_large_text" placeholder="Hover tooltip" oninput="markDirty()">
-        </div>
-        <div class="field">
-          <label>Small Image (URL or Key)</label>
-          <input type="text" id="rpc_small_image" placeholder="https://... or asset key" oninput="markDirty()">
-        </div>
-        <div class="field">
-          <label>Small Image Text</label>
-          <input type="text" id="rpc_small_text" placeholder="Hover tooltip" oninput="markDirty()">
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><i class="fas fa-link"></i> Buttons</div>
-        <div class="field">
-          <label>Button 1 Label</label>
-          <input type="text" id="rpc_button1_text" placeholder="Visit Website" oninput="markDirty()">
-        </div>
-        <div class="field">
-          <label>Button 1 URL</label>
-          <input type="text" id="rpc_button1_url" placeholder="https://..." oninput="markDirty()">
-        </div>
-        <hr style="border-color:var(--border);margin:16px 0">
-        <div class="field">
-          <label>Button 2 Label</label>
-          <input type="text" id="rpc_button2_text" placeholder="Join Server" oninput="markDirty()">
-        </div>
-        <div class="field">
-          <label>Button 2 URL</label>
-          <input type="text" id="rpc_button2_url" placeholder="https://..." oninput="markDirty()">
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><i class="fas fa-comment-dots"></i> Custom Status</div>
-        <div class="toggle-row">
-          <div>
-            <strong>Enable Custom Status</strong>
-            <div style="font-size:0.75rem; color:var(--text-dim)">Shows text & emoji under your username</div>
+        <div class="grid-2">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Auto-Claim Rewards</div>
+              <div class="toggle-desc">Automatically claim rewards after a quest completes</div>
+            </div>
+            <div class="toggle" id="autoClaimToggle" onclick="this.classList.toggle('on');saveSettings()"></div>
           </div>
-          <label class="switch"><input type="checkbox" id="custom_status_enabled" onchange="markDirty()"><span class="slider"></span></label>
-        </div>
-        <div class="field" style="margin-top:15px">
-          <label>Status Text</label>
-          <input type="text" id="custom_status_text" placeholder="Vibing..." oninput="markDirty()">
-        </div>
-        <div class="field">
-          <label>Emoji</label>
-          <input type="text" id="custom_status_emoji" placeholder="🎮 or <:name:id>" oninput="markDirty()">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Completion Notifications</div>
+              <div class="toggle-desc">Webhook ping when a quest finishes</div>
+            </div>
+            <div class="toggle" id="questNotifToggle" onclick="this.classList.toggle('on');saveSettings()"></div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Quests Section -->
-  <div id="quests" class="section">
-    <div class="header">
-      <h2>Discord Quests</h2>
-      <div style="display:flex; gap:10px">
-        <button class="btn btn-ghost" onclick="loadQuests()"><i class="fas fa-sync"></i> Refresh</button>
-        <button id="startAllBtn" class="btn btn-primary" onclick="startAllQuests()"><i class="fas fa-play"></i> Start All</button>
-        <button id="stopBtn" class="btn btn-danger" style="display:none" onclick="stopQuests()"><i class="fas fa-stop"></i> Stop</button>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px">
+          <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          Available Quests
+        </div>
+        <div id="questList"><div style="color:var(--text-2);font-size:13px;text-align:center;padding:24px 0">Click Refresh to load quests</div></div>
       </div>
-    </div>
-    
-    <div id="questBanner" class="status-card" style="display:none; border-color: var(--accent)">
-      <div class="dot dot-g"></div>
-      <div id="questBannerText" class="status-info">Running quests...</div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Quest History
+          </div>
+          <button class="btn btn-ghost" onclick="clearHistory()">Clear</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Quest</th><th>Status</th><th>Completed</th></tr></thead>
+            <tbody id="historyBody"><tr><td colspan="3" class="dim" style="text-align:center;padding:20px">No history yet</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Protocol Logs
+          </div>
+          <button class="btn btn-ghost" onclick="clearLogs()">Clear</button>
+        </div>
+        <div class="terminal" id="logTerminal"></div>
+      </div>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <div class="card-title"><i class="fas fa-list"></i> Available Quests</div>
-        <div id="questList" class="quest-list">
-          <div class="quest-empty">Loading quests...</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fas fa-terminal"></i> Protocol Logs</div>
-        <div id="questLog" class="quest-log">
-          <span style="color:var(--text-muted)">Waiting for protocol start...</span>
-        </div>
-        <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="clearQuestLogs()">Clear Logs</button>
-      </div>
-    </div>
-  </div>
+    <!-- ════════════ AUTOMATION ════════════ -->
+    <div id="sec-automation" class="section">
+      <div class="grid-2">
 
-  <!-- Automation Section -->
-  <div id="automation" class="section">
-    <div class="header"><h2>Automation Features</h2></div>
-    <div class="grid">
-      <div class="card">
-        <div class="card-title"><i class="fas fa-moon"></i> AFK Mode</div>
-        <div class="toggle-row">
-          <div><strong>Enable AFK</strong><small style="display:block;color:var(--text-dim)">Auto-reply to DMs when active</small></div>
-          <label class="switch"><input type="checkbox" id="afk_enabled"><span class="slider"></span></label>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+              AFK Responder
+            </div>
+            <div class="toggle" id="afkToggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="form-gap">
+            <div class="field"><label>AFK Message</label><textarea id="afkMsg" placeholder="I'm AFK right now…"></textarea></div>
+            <div class="field"><label>Cooldown per user (minutes)</label><input type="number" id="afkCooldown" value="5" min="0"></div>
+            <button class="btn btn-primary btn-full" onclick="saveAutoFeatures()">Save</button>
+          </div>
         </div>
-        <div class="field" style="margin-top:15px">
-          <label>AFK Message</label>
-          <textarea id="afk_msg" placeholder="I am currently AFK..."></textarea>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fas fa-bolt"></i> Auto-Features</div>
-        <div class="toggle-row">
-          <div><strong>Auto-React</strong><small style="display:block;color:var(--text-dim)">React to messages in specific channels</small></div>
-          <label class="switch"><input type="checkbox" id="react_enabled"><span class="slider"></span></label>
-        </div>
-        <div class="toggle-row">
-          <div><strong>Auto-Reply</strong><small style="display:block;color:var(--text-dim)">Reply to keywords automatically</small></div>
-          <label class="switch"><input type="checkbox" id="reply_enabled"><span class="slider"></span></label>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Messages Section -->
-  <div id="messages" class="section">
-    <div class="header"><h2>Message Scheduler</h2></div>
-    <div class="grid">
-      <div class="card">
-        <div class="card-title"><i class="fas fa-clock"></i> Schedule One-Time</div>
-        <div class="field"><label>Target ID (Channel/User)</label><input type="text" id="sch_target"></div>
-        <div class="field"><label>Run At</label><input type="datetime-local" id="sch_when"></div>
-        <div class="field"><label>Message Content</label><textarea id="sch_msg"></textarea></div>
-        <button class="btn btn-primary" onclick="addScheduled()">Schedule Message</button>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fas fa-redo"></i> Recurring Messages</div>
-        <div class="field"><label>Target ID</label><input type="text" id="rec_target"></div>
-        <div class="field"><label>Interval (Minutes)</label><input type="number" id="rec_interval" value="60"></div>
-        <div class="field"><label>Message Content</label><textarea id="rec_msg"></textarea></div>
-        <button class="btn btn-primary" onclick="addRecurring()">Add Recurring</button>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fas fa-list"></i> Scheduled Queue</div>
-        <div id="sch_list" class="row-list"></div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fas fa-list"></i> Recurring Queue</div>
-        <div id="rec_list" class="row-list"></div>
-      </div>
-    </div>
-  </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              Keyword Alerts
+            </div>
+            <div class="toggle" id="kwToggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Posts a webhook when these words appear in any message</div>
+          <div class="input-row" style="margin-bottom:0">
+            <input type="text" id="kwInput" placeholder="Keyword to watch" style="flex:1" onkeydown="if(event.key==='Enter')addKeyword()">
+            <button class="btn btn-ghost" onclick="addKeyword()">Add</button>
+          </div>
+          <div class="item-list" id="kwList"></div>
+          <button class="btn btn-primary btn-full" style="margin-top:12px" onclick="saveAutoFeatures()">Save</button>
+        </div>
 
-  <!-- Utility Section -->
-  <div id="utility" class="section">
-    <div class="header"><h2>Utility Tools</h2></div>
-    <div class="grid">
-      <div class="card">
-        <div class="card-title"><i class="fas fa-trash"></i> Message Purge</div>
-        <div class="field"><label>Channel ID</label><input type="text" id="purge_channel"></div>
-        <div class="field"><label>Count</label><input type="number" id="purge_count" value="100"></div>
-        <button class="btn btn-danger" onclick="runPurge()">Purge My Messages</button>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="fas fa-paper-plane"></i> Quick Send</div>
-        <div class="field"><label>Target ID</label><input type="text" id="send_target"></div>
-        <div class="field"><label>Message</label><textarea id="send_msg"></textarea></div>
-        <button class="btn btn-primary" onclick="runSend()">Send Now</button>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+              Auto React
+            </div>
+            <div class="toggle" id="reactToggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">React with an emoji when a keyword is mentioned</div>
+          <div class="input-row" style="margin-bottom:0">
+            <input type="text" id="reactKw" placeholder="Keyword" style="flex:1.5">
+            <input type="text" id="reactEmoji" placeholder="😊" style="flex:0.8">
+            <button class="btn btn-ghost" onclick="addReactTrigger()">Add</button>
+          </div>
+          <div class="item-list" id="reactList"></div>
+          <button class="btn btn-primary btn-full" style="margin-top:12px" onclick="saveAutoFeatures()">Save</button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>
+              Auto Reply
+            </div>
+            <div class="toggle" id="replyToggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="field" style="margin-bottom:10px">
+            <label>Per-user cooldown (minutes, 0 = off)</label>
+            <input type="number" id="replyCooldown" value="0" min="0">
+          </div>
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:8px">Rules trigger on DMs and mentions only</div>
+          <div class="input-row" style="margin-bottom:0">
+            <input type="text" id="replyMatch" placeholder="Match phrase" style="flex:1">
+            <input type="text" id="replyText" placeholder="Reply with" style="flex:1">
+            <button class="btn btn-ghost" onclick="addReplyRule()">Add</button>
+          </div>
+          <div class="item-list" id="replyList"></div>
+          <button class="btn btn-primary btn-full" style="margin-top:12px" onclick="saveAutoFeatures()">Save</button>
+        </div>
       </div>
     </div>
+
+    <!-- ════════════ MESSAGES ════════════ -->
+    <div id="sec-messages" class="section">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Scheduled (One-time)
+          </div>
+          <div class="form-gap" style="margin-bottom:12px">
+            <div class="field"><label>Target (Channel/User ID)</label><input type="text" id="schTarget" placeholder="ID"></div>
+            <div class="field"><label>Send At</label><input type="datetime-local" id="schTime"></div>
+            <div class="field"><label>Message</label><textarea id="schMsg" placeholder="Your message"></textarea></div>
+            <button class="btn btn-primary btn-full" onclick="addScheduled()">Schedule</button>
+          </div>
+          <div class="item-list" id="scheduledList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">
+            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+            Recurring
+          </div>
+          <div class="form-gap" style="margin-bottom:12px">
+            <div class="field"><label>Target (Channel/User ID)</label><input type="text" id="recTarget" placeholder="ID"></div>
+            <div class="input-row">
+              <div class="field"><label>Every</label><input type="number" id="recInterval" placeholder="30" min="1"></div>
+              <div class="field"><label>Unit</label>
+                <select id="recUnit"><option value="minute">Minutes</option><option value="hour">Hours</option><option value="day">Days</option></select>
+              </div>
+            </div>
+            <div class="field"><label>Message</label><textarea id="recMsg" placeholder="Your message"></textarea></div>
+            <button class="btn btn-primary btn-full" onclick="addRecurring()">Add Recurring</button>
+          </div>
+          <div class="item-list" id="recurringList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ UTILITY ════════════ -->
+    <div id="sec-utility" class="section">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Purge Messages
+          </div>
+          <div class="form-gap">
+            <div class="field"><label>Channel ID</label><input type="text" id="purgeChannel" placeholder="Channel ID"></div>
+            <div class="field"><label>Count (max 100)</label><input type="number" id="purgeCount" value="10" min="1" max="100"></div>
+            <button class="btn btn-danger btn-full" onclick="purgeMessages()">Purge My Messages</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Quick Send
+          </div>
+          <div class="form-gap">
+            <div class="field"><label>Target (Channel/User ID)</label><input type="text" id="sendTarget" placeholder="ID"></div>
+            <div class="field"><label>Message</label><textarea id="sendMsg" placeholder="Your message"></textarea></div>
+            <button class="btn btn-primary btn-full" onclick="sendMessage()">Send</button>
+          </div>
+        </div>
+
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-title" style="margin-bottom:14px">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            Mass DM
+          </div>
+          <div class="form-gap">
+            <div class="grid-2">
+              <div class="field"><label>User IDs (one per line)</label><textarea id="massIds" placeholder="123456789&#10;987654321" style="min-height:90px"></textarea></div>
+              <div class="form-gap">
+                <div class="field"><label>Message</label><textarea id="massMsg" placeholder="Your message"></textarea></div>
+                <div class="field"><label>Delay between DMs (ms)</label><input type="number" id="massDelay" value="1500" min="1000"></div>
+                <button class="btn btn-primary btn-full" onclick="massDm()">Send Mass DM</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ SETTINGS ════════════ -->
+    <div id="sec-settings" class="section">
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val">1.5.0</div>
+          <div class="stat-lbl">Version</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="totalQuestsCompleted">—</div>
+          <div class="stat-lbl">Quests Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="aboutStatus">—</div>
+          <div class="stat-lbl">Connection</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">
+            <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Webhook Notifications
+          </div>
+          <div class="form-gap">
+            <div class="field">
+              <label>Discord Webhook URL</label>
+              <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
+            </div>
+            <div style="font-size:12px;color:var(--text-2)">Used for quest completion pings and keyword mention alerts</div>
+            <button class="btn btn-primary btn-full" onclick="saveSettings()">Save Webhook</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Security
+          </div>
+          <div class="form-gap">
+            <div class="field"><label>New Panel Password</label><input type="password" id="newPw" placeholder="Leave blank to keep current"></div>
+            <div class="field"><label>Confirm Password</label><input type="password" id="confirmPw" placeholder="Confirm new password"></div>
+            <button class="btn btn-ghost btn-full" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<div id="saveBar" class="save-bar">
-  <div style="color:var(--text-dim); font-size:0.9rem">You have unsaved changes</div>
-  <div style="display:flex; gap:10px">
-    <button class="btn btn-ghost" onclick="resetForm()">Discard</button>
-    <button class="btn btn-primary" onclick="saveAll()">Save Changes</button>
-  </div>
+<!-- ── SAVE BAR ── -->
+<div id="saveBar">
+  <span class="save-msg">Unsaved changes</span>
+  <button class="btn btn-ghost" onclick="loadConfig()">Discard</button>
+  <button class="btn btn-primary" onclick="saveConfig()">Save Changes</button>
 </div>
+
+<div id="toasts"></div>
 
 <script>
-const $ = id => document.getElementById(id);
-const gv = id => $(id).value;
-const sv = (id, v) => $(id).value = v;
-const gc = id => $(id).checked;
-const sc = (id, v) => $(id).checked = !!v;
-
+// ── State ──────────────────────────────────────────────────────────────────
+let cfg = {};
+let settings = {};
+let autoFeaturesCfg = {};
 let isDirty = false;
+let questPollTimer = null;
 
-function showSection(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+// ── Helpers ────────────────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+function showSection(el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  $(id).classList.add('active');
-  event.currentTarget.classList.add('active');
-  if(id === 'quests') loadQuests();
-  if(id === 'messages') loadMessages();
-  if(id === 'automation') loadAuto();
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const sec = el.dataset.sec;
+  document.getElementById('sec-' + sec).classList.add('active');
+  document.getElementById('topbarTitle').textContent = el.querySelector('span')?.textContent || sec;
+  if (sec === 'quests') { fetchQuests(); loadQuestHistory(); }
+  if (sec === 'messages') loadMessages();
+  if (sec === 'automation') loadAutoFeatures();
+  if (sec === 'settings') loadQuestHistory();
 }
 
-function markDirty() {
-  isDirty = true;
-  $('saveBar').classList.add('active');
+async function init() {
+  await Promise.all([loadConfig(), loadSettingsData(), pollStatus()]);
+  loadQuestHistory();
+  setInterval(pollStatus, 5000);
 }
 
-function resetDirty() {
-  isDirty = false;
-  $('saveBar').classList.remove('active');
-}
-
-async function loadForm() {
+// ── Config ─────────────────────────────────────────────────────────────────
+async function loadConfig() {
   try {
-    const d = await fetch('/api/config').then(r => r.json());
-    if (!d.success) return;
-    const c = d.config;
-    sv('token', c.token || '');
-    sv('status', c.status || 'online');
-    sc('rpc_enabled', c.rpc?.enabled);
-    sv('rpc_type', c.rpc?.type || 'PLAYING');
-    sv('rpc_name', c.rpc?.name || '');
-    sv('rpc_application_id', c.rpc?.application_id || '');
-    sv('rpc_details', c.rpc?.details || '');
-    sv('rpc_state', c.rpc?.state || '');
-    sv('rpc_stream_url', c.rpc?.stream_url || '');
-    sc('rpc_show_elapsed', c.rpc?.show_elapsed);
-    sv('rpc_large_image', c.rpc?.large_image || '');
-    sv('rpc_large_text', c.rpc?.large_text || '');
-    sv('rpc_small_image', c.rpc?.small_image || '');
-    sv('rpc_small_text', c.rpc?.small_text || '');
-    sv('rpc_button1_text', c.rpc?.button1_text || '');
-    sv('rpc_button1_url', c.rpc?.button1_url || '');
-    sv('rpc_button2_text', c.rpc?.button2_text || '');
-    sv('rpc_button2_url', c.rpc?.button2_url || '');
-    sc('custom_status_enabled', c.custom_status?.enabled);
-    sv('custom_status_text', c.custom_status?.text || '');
-    sv('custom_status_emoji', c.custom_status?.emoji || '');
-    
-    updatePreview();
-    toggleStreamUrl();
-    pollStatus();
-    setInterval(pollStatus, 5000);
-  } catch (e) {}
+    const r = await fetch('/api/config');
+    const d = await r.json();
+    cfg = d.config || {};
+    applyConfigToForm(cfg);
+    isDirty = false;
+    document.getElementById('saveBar').classList.remove('visible');
+  } catch { toast('Failed to load config', 'err'); }
 }
 
-async function saveAll() {
-  const body = {
-    status: gv('status'),
+function applyConfigToForm(c) {
+  sv('tokenInput', c.token === 'PASTE_YOUR_TOKEN_HERE' ? '' : (c.token || ''));
+  sv('statusSelect', c.status || 'online');
+  st('rpcToggle', c.rpc?.enabled !== false);
+  sv('actType', c.rpc?.type || 'PLAYING');
+  sv('rpcName', c.rpc?.name || '');
+  sv('appId', c.rpc?.application_id || '');
+  sv('rpcDetails', c.rpc?.details || '');
+  sv('rpcState', c.rpc?.state || '');
+  sv('streamUrl', c.rpc?.stream_url || '');
+  sv('largeImg', c.rpc?.large_image || '');
+  sv('largeText', c.rpc?.large_text || '');
+  sv('smallImg', c.rpc?.small_image || '');
+  sv('smallText', c.rpc?.small_text || '');
+  sv('btn1text', c.rpc?.button1_text || '');
+  sv('btn1url', c.rpc?.button1_url || '');
+  sv('btn2text', c.rpc?.button2_text || '');
+  sv('btn2url', c.rpc?.button2_url || '');
+  st('elapsedToggle', !!c.rpc?.show_elapsed);
+  st('csToggle', !!c.custom_status?.enabled);
+  sv('csText', c.custom_status?.text || '');
+  sv('csEmoji', c.custom_status?.emoji || '');
+  document.getElementById('streamUrlField').style.display = (c.rpc?.type === 'STREAMING') ? '' : 'none';
+  updatePreview();
+}
+
+async function saveConfig() {
+  const payload = {
+    token: gv('tokenInput') || cfg.token,
+    status: gv('statusSelect'),
     rpc: {
-      enabled: gc('rpc_enabled'),
-      type: gv('rpc_type'),
-      name: gv('rpc_name'),
-      application_id: gv('rpc_application_id'),
-      details: gv('rpc_details'),
-      state: gv('rpc_state'),
-      stream_url: gv('rpc_stream_url'),
-      show_elapsed: gc('rpc_show_elapsed'),
-      large_image: gv('rpc_large_image'),
-      large_text: gv('rpc_large_text'),
-      small_image: gv('rpc_small_image'),
-      small_text: gv('rpc_small_text'),
-      button1_text: gv('rpc_button1_text'),
-      button1_url: gv('rpc_button1_url'),
-      button2_text: gv('rpc_button2_text'),
-      button2_url: gv('rpc_button2_url')
+      enabled: on('rpcToggle'),
+      type: gv('actType'),
+      name: gv('rpcName'),
+      application_id: gv('appId'),
+      details: gv('rpcDetails'),
+      state: gv('rpcState'),
+      stream_url: gv('streamUrl'),
+      large_image: gv('largeImg'),
+      large_text: gv('largeText'),
+      small_image: gv('smallImg'),
+      small_text: gv('smallText'),
+      button1_text: gv('btn1text'),
+      button1_url: gv('btn1url'),
+      button2_text: gv('btn2text'),
+      button2_url: gv('btn2url'),
+      show_elapsed: on('elapsedToggle'),
     },
-    custom_status: {
-      enabled: gc('custom_status_enabled'),
-      text: gv('custom_status_text'),
-      emoji: gv('custom_status_emoji')
-    }
+    custom_status: { enabled: on('csToggle'), text: gv('csText'), emoji: gv('csEmoji') }
   };
-  const d = await fetch('/api/config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  }).then(r => r.json());
-  if (d.success) {
-    toast('Settings saved!', true);
-    resetDirty();
-  } else toast(d.error, false);
+  try {
+    const r = await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const d = await r.json();
+    if (d.success) { cfg = { ...cfg, ...payload }; isDirty = false; document.getElementById('saveBar').classList.remove('visible'); toast('Saved!', 'ok'); }
+    else toast(d.error || 'Save failed', 'err');
+  } catch { toast('Save failed', 'err'); }
 }
 
-async function saveToken() {
-  const token = gv('token');
-  const d = await fetch('/api/config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token })
-  }).then(r => r.json());
-  if (d.success) toast('Token updated!', true);
-  else toast(d.error, false);
+// ── Settings ───────────────────────────────────────────────────────────────
+async function loadSettingsData() {
+  try {
+    const r = await fetch('/api/settings');
+    const d = await r.json();
+    settings = d.settings || {};
+    applySettings(settings);
+  } catch {}
+}
+
+function applySettings(s) {
+  sv('webhookUrl', s.webhookUrl || '');
+  st('autoClaimToggle', !!s.autoClaimQuests);
+  st('questNotifToggle', !!s.questNotifications);
+  st('rotToggle', !!s.presenceRotation?.enabled);
+  sv('rotInterval', s.presenceRotation?.intervalMinutes || 5);
+  renderRotList(s.presenceRotation?.presences || []);
+  st('idleToggle', !!s.idleSpoof?.enabled);
+  sv('idleTimeout', s.idleSpoof?.timeoutMinutes || 10);
+  st('kwToggle', !!s.keywordAlerts?.enabled);
+  renderKwList(s.keywordAlerts?.keywords || []);
+}
+
+async function saveSettings() {
+  const updated = {
+    ...settings,
+    webhookUrl: gv('webhookUrl'),
+    autoClaimQuests: on('autoClaimToggle'),
+    questNotifications: on('questNotifToggle'),
+    presenceRotation: { enabled: on('rotToggle'), intervalMinutes: parseInt(gv('rotInterval')) || 5, presences: settings.presenceRotation?.presences || [] },
+    idleSpoof: { enabled: on('idleToggle'), timeoutMinutes: parseInt(gv('idleTimeout')) || 10 },
+    keywordAlerts: { enabled: on('kwToggle'), keywords: settings.keywordAlerts?.keywords || [] }
+  };
+  try {
+    const r = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
+    const d = await r.json();
+    if (d.success) { settings = d.settings; toast('Settings saved', 'ok'); }
+    else toast(d.error || 'Failed', 'err');
+  } catch { toast('Failed', 'err'); }
+}
+
+// ── Presence rotation ──────────────────────────────────────────────────────
+function addRotEntry() {
+  const name = gv('rotName').trim();
+  if (!name) { toast('Enter a name', 'err'); return; }
+  if (!settings.presenceRotation) settings.presenceRotation = { enabled: false, intervalMinutes: 5, presences: [] };
+  settings.presenceRotation.presences.push({ type: gv('rotType'), name, application_id: gv('rotAppId') || undefined });
+  renderRotList(settings.presenceRotation.presences);
+  sv('rotName', ''); sv('rotAppId', '');
+}
+
+function removeRotEntry(i) { settings.presenceRotation.presences.splice(i, 1); renderRotList(settings.presenceRotation.presences); }
+
+function renderRotList(list) {
+  document.getElementById('rotList').innerHTML = list.map((p, i) => `
+    <div class="item-row">
+      <span class="im">${e(p.type)}</span><span class="it">${e(p.name)}</span>
+      <button class="icon-btn del" onclick="removeRotEntry(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>`).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No entries</div>`;
+}
+
+// ── Keyword alerts ─────────────────────────────────────────────────────────
+function addKeyword() {
+  const kw = gv('kwInput').trim(); if (!kw) return;
+  if (!settings.keywordAlerts) settings.keywordAlerts = { enabled: false, keywords: [] };
+  if (!settings.keywordAlerts.keywords) settings.keywordAlerts.keywords = [];
+  settings.keywordAlerts.keywords.push(kw);
+  renderKwList(settings.keywordAlerts.keywords); sv('kwInput', '');
+}
+
+function removeKeyword(i) { settings.keywordAlerts.keywords.splice(i, 1); renderKwList(settings.keywordAlerts.keywords); }
+
+function renderKwList(list) {
+  document.getElementById('kwList').innerHTML = list.map((k, i) => `
+    <div class="item-row"><span class="it">${e(k)}</span>
+      <button class="icon-btn del" onclick="removeKeyword(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>`).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No keywords</div>`;
+}
+
+// ── Token validation ───────────────────────────────────────────────────────
+async function validateToken() {
+  const box = document.getElementById('tokenValidResult');
+  box.innerHTML = '<div style="color:var(--text-2)">Validating…</div>';
+  try {
+    const r = await fetch('/api/validate-token');
+    const d = await r.json();
+    if (d.success) {
+      box.innerHTML = `<div style="text-align:center"><div style="font-size:20px;font-weight:700;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">${e(d.user.username)}</div><div style="font-size:11px;color:var(--text-2);margin-top:4px">ID: ${d.user.id}</div><div style="margin-top:8px"><span class="badge badge-green">✓ Valid</span></div></div>`;
+    } else {
+      box.innerHTML = `<div style="text-align:center"><span class="badge badge-red">✗ ${e(d.error)}</span></div>`;
+    }
+  } catch { box.innerHTML = `<div style="color:var(--red);font-size:13px">Validation failed</div>`; }
+}
+
+// ── Connection ─────────────────────────────────────────────────────────────
+async function toggleConnect() {
+  const dotCls = document.getElementById('footDot').className;
+  if (dotCls.includes('connected')) {
+    await fetch('/api/stop', { method: 'POST' });
+    toast('Disconnected', 'info');
+  } else {
+    if (isDirty) await saveConfig();
+    const r = await fetch('/api/start', { method: 'POST' });
+    const d = await r.json();
+    if (!d.success) toast(d.error || 'Connection failed', 'err');
+  }
+  setTimeout(pollStatus, 600);
 }
 
 async function pollStatus() {
   try {
-    const d = await fetch('/api/status').then(r => r.json());
-    const dot = $('statusDot'), tag = $('statusTag'), sub = $('statusSub'), btn = $('connectBtn');
-    dot.className = 'dot ' + (d.state === 'connected' ? 'dot-g' : d.state === 'connecting' ? 'dot-y' : 'dot-r');
-    tag.textContent = d.state.toUpperCase();
-    sub.textContent = d.state === 'connected' ? `Logged in as ${d.tag}` : d.error || 'Disconnected from Discord';
-    btn.innerHTML = d.state === 'connected' ? '<i class="fas fa-stop"></i> Disconnect' : '<i class="fas fa-plug"></i> Connect';
-    btn.className = 'btn ' + (d.state === 'connected' ? 'btn-danger' : 'btn-primary');
-  } catch (e) {}
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    document.getElementById('footDot').className = 'dot ' + (d.state || '');
+    document.getElementById('footTag').textContent = d.tag || d.state || 'Not connected';
+    document.getElementById('aboutStatus').textContent = d.state === 'connected' ? 'Online' : (d.state || '—');
+    document.getElementById('connectBtn').style.display = d.state === 'connected' ? 'none' : '';
+    document.getElementById('disconnectBtn').style.display = d.state === 'connected' ? '' : 'none';
+  } catch {}
 }
 
-async function toggleConnect() {
-  const d = await fetch('/api/status').then(r => r.json());
-  if (d.state === 'connected') await fetch('/api/stop', { method: 'POST' });
-  else await fetch('/api/start', { method: 'POST' });
-  pollStatus();
-}
-
+// ── Preview ────────────────────────────────────────────────────────────────
 function updatePreview() {
-  const type = gv('rpc_type'), name = gv('rpc_name') || 'Onyx', det = gv('rpc_details'), st = gv('rpc_state'), img = gv('rpc_large_image');
-  $('prevType').textContent = type;
-  $('prevName').textContent = name;
-  const de = $('prevDetails'), se = $('prevState');
-  de.textContent = det; de.style.display = det ? 'block' : 'none';
-  se.textContent = st; se.style.display = st ? 'block' : 'none';
-  const pi = $('prevImg');
-  pi.innerHTML = img ? `<img src="${img}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">` : '<i class="fas fa-image"></i>';
+  const type = gv('actType');
+  document.getElementById('streamUrlField').style.display = type === 'STREAMING' ? '' : 'none';
+  document.getElementById('prevType').textContent = type;
+  document.getElementById('prevName').textContent = gv('rpcName') || 'Onyx';
+  const det = gv('rpcDetails'), sta = gv('rpcState');
+  const pd = document.getElementById('prevDetails'), ps = document.getElementById('prevState');
+  pd.textContent = det; pd.style.display = det ? '' : 'none';
+  ps.textContent = sta; ps.style.display = sta ? '' : 'none';
 }
 
-function toggleStreamUrl() {
-  $('streamUrlField').style.display = gv('rpc_type') === 'STREAMING' ? 'block' : 'none';
+function markDirty() {
+  if (!isDirty) { isDirty = true; document.getElementById('saveBar').classList.add('visible'); }
 }
 
-function toast(msg, ok) {
-  const t = document.createElement('div');
-  t.className = 'toast ' + (ok ? 'tok' : 'terr'); t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
-}
-
-// ── Quests ──
-let questPollTimer = null;
-let lastLogCount = 0;
-let cachedQuests = [];
-
-async function loadQuests() {
-  const list = $('questList');
-  list.innerHTML = '<div class="quest-empty"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+// ── Quests ─────────────────────────────────────────────────────────────────
+async function fetchQuests() {
+  const c = document.getElementById('questList');
+  c.innerHTML = '<div style="color:var(--text-2);font-size:13px;padding:16px 0">Loading…</div>';
   try {
-    const d = await fetch('/api/quests').then(r => r.json());
-    if (d.success) { cachedQuests = d.quests; renderQuestList(d.quests); }
-    else list.innerHTML = `<div class="quest-empty" style="color:var(--red)">${d.error}</div>`;
-  } catch (e) {}
+    const r = await fetch('/api/quests');
+    const d = await r.json();
+    if (!d.success) { c.innerHTML = `<div style="color:var(--red);font-size:13px">${e(d.error)}</div>`; return; }
+    const quests = d.quests || [];
+    if (!quests.length) { c.innerHTML = '<div style="color:var(--text-2);font-size:13px;text-align:center;padding:24px 0">No quests available</div>'; return; }
+    c.innerHTML = '<div class="quest-grid">' + quests.map(q => {
+      const tag = q.completed ? '<span class="badge badge-green">Done</span>' :
+                  q.expired   ? '<span class="badge badge-red">Expired</span>' :
+                  q.type === 'PLAY_ON_DESKTOP' ? '<span class="badge badge-cyan">Play</span>' :
+                  '<span class="badge badge-purple">Video</span>';
+      const btn = (!q.completed && !q.expired) ? `<button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" onclick="startOneQuest('${q.id}')">Start</button>` : '';
+      return `<div class="quest-card"><div class="quest-game">${e(q.game || q.name)}</div><div class="quest-name">${e(q.name)}</div><div class="quest-foot">${tag}${btn}</div></div>`;
+    }).join('') + '</div>';
+  } catch (err) { c.innerHTML = `<div style="color:var(--red);font-size:13px">${e(err.message)}</div>`; }
 }
 
-function renderQuestList(quests) {
-  const list = $('questList');
-  if (!quests.length) { list.innerHTML = '<div class="quest-empty">No quests available</div>'; return; }
-  list.innerHTML = quests.map(q => {
-    const icon = q.appId ? `<img src="https://cdn.discordapp.com/app-icons/${q.appId}/a_.png" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-gamepad\\'></i>'">` : '<i class="fas fa-gamepad"></i>';
-    return `<div class="quest-item" id="qi-${q.id}">
-      <div class="quest-icon">${icon}</div>
-      <div class="quest-info">
-        <div style="font-weight:700">${q.name}</div>
-        <div style="font-size:0.75rem; color:var(--text-dim)">${q.game || ''} • ${q.type}</div>
-      </div>
-      ${!q.completed && !q.expired ? `<button class="btn btn-ghost btn-sm" onclick="startQuest('${q.id}')">Start</button>` : `<span class="tag">${q.completed ? 'Done' : 'Expired'}</span>`}
-    </div>`;
-  }).join('');
-}
-
-async function startQuest(questId) {
-  await fetch('/api/quests/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ questId }) });
+async function startQuests() {
+  const r = await fetch('/api/quests/start', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+  const d = await r.json();
+  if (!d.success) { toast(d.error || 'Start failed', 'err'); return; }
+  toast('Quests started', 'ok');
   startQuestPoll();
 }
 
-async function startAllQuests() {
-  await fetch('/api/quests/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+async function startOneQuest(id) {
+  const r = await fetch('/api/quests/start', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ questId: id }) });
+  const d = await r.json();
+  if (!d.success) { toast(d.error || 'Failed', 'err'); return; }
+  toast('Quest started', 'ok');
   startQuestPoll();
 }
 
-async function stopQuests() { await fetch('/api/quests/stop', { method: 'POST' }); }
-async function clearQuestLogs() { await fetch('/api/quests/clear-logs', { method: 'POST' }); $('questLog').innerHTML = ''; lastLogCount = 0; }
-
-function startQuestPoll() {
-  if (questPollTimer) return;
-  questPollTimer = setInterval(pollQuestStatus, 1500);
+async function stopQuests() {
+  await fetch('/api/quests/stop', { method: 'POST' });
+  toast('Stopped', 'info');
+  stopQuestPoll();
 }
+
+function startQuestPoll() { if (!questPollTimer) { questPollTimer = setInterval(pollQuestStatus, 1500); pollQuestStatus(); } }
+function stopQuestPoll() { clearInterval(questPollTimer); questPollTimer = null; document.getElementById('questBanner').style.display = 'none'; document.getElementById('stopQuestBtn').style.display = 'none'; }
 
 async function pollQuestStatus() {
   try {
-    const d = await fetch('/api/quests/status').then(r => r.json());
-    const banner = $('questBanner'), bText = $('questBannerText');
+    const r = await fetch('/api/quests/status');
+    const d = await r.json();
+    const banner = document.getElementById('questBanner');
     if (d.isRunning) {
       banner.style.display = 'flex';
-      bText.textContent = d.currentQuest ? `Running: ${d.currentQuest.name}` : 'Running quests...';
-      $('startAllBtn').style.display = 'none'; $('stopBtn').style.display = 'inline-flex';
+      document.getElementById('questBannerText').textContent = d.currentQuest ? `Running: ${d.currentQuest.name}` : 'Running quests…';
+      document.getElementById('stopQuestBtn').style.display = '';
     } else {
       banner.style.display = 'none';
-      $('startAllBtn').style.display = 'inline-flex'; $('stopBtn').style.display = 'none';
-      if (questPollTimer) { clearInterval(questPollTimer); questPollTimer = null; }
+      document.getElementById('stopQuestBtn').style.display = 'none';
+      if (questPollTimer) { stopQuestPoll(); loadQuestHistory(); }
     }
-    if (d.logs && d.logs.length > lastLogCount) {
-      const logEl = $('questLog');
-      d.logs.slice(lastLogCount).forEach(line => {
-        const div = document.createElement('div');
-        div.textContent = line;
-        logEl.appendChild(div);
-      });
-      lastLogCount = d.logs.length;
-      logEl.scrollTop = logEl.scrollHeight;
-    }
-  } catch (e) {}
+    renderLogs(d.logs || []);
+  } catch {}
 }
 
-// ── Messages ──
+function renderLogs(logs) {
+  const el = document.getElementById('logTerminal');
+  el.innerHTML = logs.map(l => {
+    const cls = l.includes('COMPLETED') ? 'log-ok' : l.includes('Error') || l.includes('error') ? 'log-err' : l.includes('Progress') || l.includes('Heartbeat') ? 'log-dim' : 'log-info';
+    return `<div class="${cls}">${e(l)}</div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function clearLogs() { await fetch('/api/quests/clear-logs', { method: 'POST' }); document.getElementById('logTerminal').innerHTML = ''; }
+
+async function loadQuestHistory() {
+  try {
+    const r = await fetch('/api/quests/history');
+    const d = await r.json();
+    const history = d.history || [];
+    document.getElementById('totalQuestsCompleted').textContent = history.filter(h => h.success).length;
+    const tbody = document.getElementById('historyBody');
+    if (!history.length) { tbody.innerHTML = '<tr><td colspan="3" class="dim" style="text-align:center;padding:20px">No history yet</td></tr>'; return; }
+    tbody.innerHTML = history.slice(0, 50).map(h => {
+      const dt = new Date(h.completedAt);
+      return `<tr><td>${e(h.name)}</td><td>${h.success ? '<span class="badge badge-green">Done</span>' : '<span class="badge badge-red">Failed</span>'}</td><td class="dim">${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}</td></tr>`;
+    }).join('');
+  } catch {}
+}
+
+async function clearHistory() {
+  await fetch('/api/quests/history', { method: 'DELETE' });
+  document.getElementById('historyBody').innerHTML = '<tr><td colspan="3" class="dim" style="text-align:center;padding:20px">No history yet</td></tr>';
+  document.getElementById('totalQuestsCompleted').textContent = '0';
+  toast('History cleared', 'info');
+}
+
+// ── Auto Features ──────────────────────────────────────────────────────────
+async function loadAutoFeatures() {
+  try {
+    const r = await fetch('/api/auto');
+    const d = await r.json();
+    autoFeaturesCfg = d.config || {};
+    st('afkToggle', !!autoFeaturesCfg.afk?.enabled);
+    sv('afkMsg', autoFeaturesCfg.afk?.message || '');
+    sv('afkCooldown', Math.round((autoFeaturesCfg.afk?.cooldownMs || 300000) / 60000));
+    st('reactToggle', !!autoFeaturesCfg.autoReact?.enabled);
+    renderReactList(autoFeaturesCfg.autoReact?.textTriggers || {});
+    st('replyToggle', !!autoFeaturesCfg.autoReply?.enabled);
+    sv('replyCooldown', Math.round((autoFeaturesCfg.autoReply?.cooldownMs || 0) / 60000));
+    renderReplyList(autoFeaturesCfg.autoReply?.rules || []);
+    st('kwToggle', !!autoFeaturesCfg.keywordAlerts?.enabled || !!settings.keywordAlerts?.enabled);
+    renderKwList(settings.keywordAlerts?.keywords || autoFeaturesCfg.keywordAlerts?.keywords || []);
+  } catch {}
+}
+
+async function saveAutoFeatures() {
+  const payload = {
+    afk: { enabled: on('afkToggle'), message: gv('afkMsg'), cooldownMs: (parseInt(gv('afkCooldown')) || 5) * 60000 },
+    autoReact: { enabled: on('reactToggle'), userTriggers: autoFeaturesCfg.autoReact?.userTriggers || {}, textTriggers: autoFeaturesCfg.autoReact?.textTriggers || {} },
+    autoReply: { enabled: on('replyToggle'), cooldownMs: (parseInt(gv('replyCooldown')) || 0) * 60000, rules: autoFeaturesCfg.autoReply?.rules || [] },
+    keywordAlerts: { enabled: on('kwToggle'), keywords: settings.keywordAlerts?.keywords || [] }
+  };
+  try {
+    const r = await fetch('/api/auto', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const d = await r.json();
+    if (d.success) { autoFeaturesCfg = d.config; toast('Automation saved', 'ok'); }
+    else toast(d.error || 'Failed', 'err');
+  } catch { toast('Failed', 'err'); }
+  // Also persist keyword settings
+  const us = { ...settings, keywordAlerts: { enabled: on('kwToggle'), keywords: settings.keywordAlerts?.keywords || [] } };
+  fetch('/api/settings', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(us) }).catch(() => {});
+}
+
+function addReactTrigger() {
+  const kw = gv('reactKw').trim(), emoji = gv('reactEmoji').trim();
+  if (!kw || !emoji) { toast('Enter keyword and emoji', 'err'); return; }
+  if (!autoFeaturesCfg.autoReact) autoFeaturesCfg.autoReact = { enabled: false, userTriggers: {}, textTriggers: {} };
+  if (!autoFeaturesCfg.autoReact.textTriggers) autoFeaturesCfg.autoReact.textTriggers = {};
+  autoFeaturesCfg.autoReact.textTriggers[kw] = [emoji];
+  renderReactList(autoFeaturesCfg.autoReact.textTriggers);
+  sv('reactKw', ''); sv('reactEmoji', '');
+}
+
+function removeReactTrigger(kw) { delete autoFeaturesCfg.autoReact.textTriggers[kw]; renderReactList(autoFeaturesCfg.autoReact.textTriggers); }
+
+function renderReactList(triggers) {
+  document.getElementById('reactList').innerHTML = Object.entries(triggers || {}).map(([kw, em]) =>
+    `<div class="item-row"><span class="im">${e(em.join(' '))}</span><span class="it">${e(kw)}</span><button class="icon-btn del" onclick="removeReactTrigger('${e(kw)}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`
+  ).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No triggers</div>`;
+}
+
+function addReplyRule() {
+  const match = gv('replyMatch').trim(), reply = gv('replyText').trim();
+  if (!match || !reply) { toast('Enter match and reply', 'err'); return; }
+  if (!autoFeaturesCfg.autoReply) autoFeaturesCfg.autoReply = { enabled: false, rules: [] };
+  autoFeaturesCfg.autoReply.rules.push({ match, reply, exact: false });
+  renderReplyList(autoFeaturesCfg.autoReply.rules);
+  sv('replyMatch', ''); sv('replyText', '');
+}
+
+function removeReplyRule(i) { autoFeaturesCfg.autoReply.rules.splice(i, 1); renderReplyList(autoFeaturesCfg.autoReply.rules); }
+
+function renderReplyList(rules) {
+  document.getElementById('replyList').innerHTML = (rules || []).map((r, i) =>
+    `<div class="item-row"><span class="im">${e(r.match)}</span><span class="it">→ ${e(r.reply)}</span><button class="icon-btn del" onclick="removeReplyRule(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`
+  ).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No rules</div>`;
+}
+
+// ── Messages ───────────────────────────────────────────────────────────────
 async function loadMessages() {
-  const d = await fetch('/api/messages').then(r => r.json());
-  renderList($('sch_list'), d.scheduled, deleteScheduled);
-  renderList($('rec_list'), d.recurring, deleteRecurring);
-}
-
-function renderList(el, list, delFn) {
-  if (!list || !list.length) { el.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted)">Empty</div>'; return; }
-  el.innerHTML = list.map(e => `<div class="row-item">
-    <div class="ri-main">
-      <div style="font-size:0.85rem"><span class="tag">${e.targetId}</span> ${e.runAt ? new Date(e.runAt).toLocaleString() : 'Every ' + e.intervalMin + 'm'}</div>
-      <div style="font-size:0.75rem; color:var(--text-dim); margin-top:4px">${e.message}</div>
-    </div>
-    <button class="btn btn-danger btn-sm" onclick="${delFn.name}('${e.id}')"><i class="fas fa-trash"></i></button>
-  </div>`).join('');
+  try {
+    const r = await fetch('/api/messages');
+    const d = await r.json();
+    renderScheduled(d.scheduled || []);
+    renderRecurring(d.recurring || []);
+  } catch {}
 }
 
 async function addScheduled() {
-  const targetId = gv('sch_target'), runAt = gv('sch_when'), message = gv('sch_msg');
-  if (!targetId || !runAt || !message) return toast('Fill all fields', false);
-  const d = await fetch('/api/messages/scheduled', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetId, runAt, message }) }).then(r => r.json());
-  if (d.success) { toast('Scheduled!', true); loadMessages(); sv('sch_msg', ''); }
-  else toast(d.error, false);
+  const payload = { targetId: gv('schTarget'), message: gv('schMsg'), runAt: new Date(gv('schTime')).getTime() };
+  if (!payload.targetId || !payload.message || !payload.runAt) { toast('Fill all fields', 'err'); return; }
+  const r = await fetch('/api/messages/scheduled', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  const d = await r.json();
+  if (d.success) { toast('Scheduled!', 'ok'); loadMessages(); sv('schTarget',''); sv('schMsg',''); }
+  else toast(d.error || 'Failed', 'err');
 }
 
 async function addRecurring() {
-  const targetId = gv('rec_target'), intervalMin = parseInt(gv('rec_interval')), message = gv('rec_msg');
-  if (!targetId || !intervalMin || !message) return toast('Fill all fields', false);
-  const d = await fetch('/api/messages/recurring', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetId, intervalMin, message }) }).then(r => r.json());
-  if (d.success) { toast('Added!', true); loadMessages(); sv('rec_msg', ''); }
-  else toast(d.error, false);
+  const payload = { targetId: gv('recTarget'), message: gv('recMsg'), interval: parseInt(gv('recInterval')), unit: gv('recUnit') };
+  if (!payload.targetId || !payload.message || !payload.interval) { toast('Fill all fields', 'err'); return; }
+  const r = await fetch('/api/messages/recurring', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  const d = await r.json();
+  if (d.success) { toast('Added!', 'ok'); loadMessages(); sv('recTarget',''); sv('recMsg',''); }
+  else toast(d.error || 'Failed', 'err');
 }
 
-async function deleteScheduled(id) { await fetch('/api/messages/scheduled/' + id, { method: 'DELETE' }); loadMessages(); }
-async function deleteRecurring(id) { await fetch('/api/messages/recurring/' + id, { method: 'DELETE' }); loadMessages(); }
-
-// ── Automation ──
-async function loadAuto() {
-  const d = await fetch('/api/auto').then(r => r.json());
-  if (d.success) {
-    sc('afk_enabled', d.config.afk?.enabled);
-    sv('afk_msg', d.config.afk?.message || '');
-    sc('react_enabled', d.config.autoReact?.enabled);
-    sc('reply_enabled', d.config.autoReply?.enabled);
-  }
-  ['afk_enabled', 'react_enabled', 'reply_enabled'].forEach(id => $(id).onchange = saveAuto);
-  $('afk_msg').onblur = saveAuto;
+function renderScheduled(list) {
+  document.getElementById('scheduledList').innerHTML = list.map(m => {
+    const dt = new Date(m.runAt);
+    return `<div class="item-row"><span class="it">${e(m.targetId)}</span><span class="im">${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}</span><button class="icon-btn del" onclick="fetch('/api/messages/scheduled/${m.id}',{method:'DELETE'}).then(()=>loadMessages())"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`;
+  }).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:10px">None scheduled</div>`;
 }
 
-async function saveAuto() {
-  const body = {
-    afk: { enabled: gc('afk_enabled'), message: gv('afk_msg') },
-    autoReact: { enabled: gc('react_enabled') },
-    autoReply: { enabled: gc('reply_enabled') }
-  };
-  await fetch('/api/auto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+function renderRecurring(list) {
+  document.getElementById('recurringList').innerHTML = list.map(m =>
+    `<div class="item-row"><span class="it">${e(m.targetId)}</span><span class="im">every ${m.interval} ${m.unit}</span><button class="icon-btn del" onclick="fetch('/api/messages/recurring/${m.id}',{method:'DELETE'}).then(()=>loadMessages())"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`
+  ).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:10px">None set</div>`;
 }
 
-// ── Utility ──
-async function runPurge() {
-  const channelId = gv('purge_channel'), count = parseInt(gv('purge_count'));
-  const d = await fetch('/api/util/purge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channelId, count }) }).then(r => r.json());
-  if (d.success) toast(`Purged ${d.deleted} messages`, true);
-  else toast(d.error, false);
+// ── Utility ────────────────────────────────────────────────────────────────
+async function purgeMessages() {
+  const ch = gv('purgeChannel');
+  if (!ch) { toast('Enter a channel ID', 'err'); return; }
+  const r = await fetch('/api/util/purge', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ channelId: ch, count: parseInt(gv('purgeCount')) || 10 }) });
+  const d = await r.json();
+  d.success ? toast(`Deleted ${d.deleted} messages`, 'ok') : toast(d.error || 'Failed', 'err');
 }
 
-async function runSend() {
-  const targetId = gv('send_target'), message = gv('send_msg');
-  const d = await fetch('/api/util/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ targetId, message }) }).then(r => r.json());
-  if (d.success) toast('Sent!', true);
-  else toast(d.error, false);
+async function sendMessage() {
+  const targetId = gv('sendTarget'), message = gv('sendMsg');
+  if (!targetId || !message) { toast('Fill all fields', 'err'); return; }
+  const r = await fetch('/api/util/send', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ targetId, message }) });
+  const d = await r.json();
+  if (d.success) { toast('Sent!', 'ok'); sv('sendMsg',''); }
+  else toast(d.error || 'Failed', 'err');
 }
 
-window.onload = loadForm;
+async function massDm() {
+  const ids = gv('massIds').split('\n').map(s => s.trim()).filter(Boolean);
+  const message = gv('massMsg');
+  if (!ids.length || !message) { toast('Fill all fields', 'err'); return; }
+  const r = await fetch('/api/util/massdm', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ ids, message, delayMs: parseInt(gv('massDelay')) || 1500 }) });
+  const d = await r.json();
+  d.success ? toast(`Sent: ${d.sent}, Failed: ${d.failed}`, 'ok') : toast(d.error || 'Failed', 'err');
+}
+
+// ── Settings page ──────────────────────────────────────────────────────────
+async function changePassword() {
+  const pw = gv('newPw'), confirm = gv('confirmPw');
+  if (!pw) { toast('Enter a password', 'err'); return; }
+  if (pw !== confirm) { toast("Passwords don't match", 'err'); return; }
+  const r = await fetch('/api/config', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ panel_pass: pw }) });
+  const d = await r.json();
+  if (d.success) { toast('Password updated — redirecting…', 'ok'); setTimeout(() => location.href = '/login', 2000); }
+  else toast(d.error || 'Failed', 'err');
+}
+
+// ── DOM helpers ────────────────────────────────────────────────────────────
+function gv(id) { return document.getElementById(id)?.value || ''; }
+function sv(id, v) { const el = document.getElementById(id); if (el) el.value = v; }
+function on(id) { return document.getElementById(id)?.classList.contains('on') || false; }
+function st(id, val) { const el = document.getElementById(id); if (el) el.classList.toggle('on', !!val); }
+function e(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+init();
 </script>
 </body>
 </html>

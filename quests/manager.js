@@ -14,6 +14,7 @@ class QuestManagerBridge {
         this.isRunning = false;
         this.currentQuestInfo = null;
         this.gameSpoofCallback = null;
+        this.onQuestComplete = null;
         this._activePlayQuests = 0;
     }
 
@@ -45,6 +46,10 @@ class QuestManagerBridge {
 
     setGameSpoofCallback(fn) {
         this.gameSpoofCallback = fn;
+    }
+
+    setQuestCompleteCallback(fn) {
+        this.onQuestComplete = fn;
     }
 
     _isPlayQuest(q) {
@@ -120,14 +125,19 @@ class QuestManagerBridge {
                 await new Promise(r => setTimeout(r, Math.random() * 5000));
 
                 if (isPlay && appId) await this._startPlaySpoof(appId, appName);
+                let success = false;
                 try {
                     await manager.doingQuest(q);
+                    success = true;
                 } catch (e) {
                     if (e.message !== 'Stopped') {
                         this.log(q.id, `Error: ${e.message}`);
                     }
                 } finally {
                     if (isPlay && appId) await this._endPlaySpoof();
+                    if (this.onQuestComplete) {
+                        await this.onQuestComplete({ id: q.id, name: appName, appId, success, completedAt: new Date().toISOString() }).catch(() => {});
+                    }
                 }
             });
 
@@ -170,11 +180,16 @@ class QuestManagerBridge {
             await new Promise(r => setTimeout(r, 1000 + Math.random() * 2000));
 
             if (isPlay && appId) await this._startPlaySpoof(appId, appName);
+            let success = false;
             try {
                 await manager.doingQuest(quest);
+                success = true;
                 this.log('system', 'Quest finished.');
             } finally {
                 if (isPlay && appId) await this._endPlaySpoof();
+                if (this.onQuestComplete) {
+                    await this.onQuestComplete({ id: quest.id, name: appName, appId, success, completedAt: new Date().toISOString() }).catch(() => {});
+                }
             }
         } catch (error) {
             if (error.message !== 'Stopped') {

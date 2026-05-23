@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const https = require('https');
+const http = require('http');
 const { Client } = require('discord.js-selfbot-v13');
 const QuestManagerBridge = require('./quests/manager');
 const { MessageScheduler } = require('./automation/messages');
@@ -15,6 +17,8 @@ const { purgeOwn, sendTo, massDm } = require('./automation/utility');
 
 const app = express();
 const CONFIG_PATH = path.join(__dirname, 'config.yml');
+const SETTINGS_PATH = path.join(__dirname, 'data', 'settings.json');
+const HISTORY_PATH = path.join(__dirname, 'data', 'quest-history.json');
 const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL_URL;
 
 const DEFAULT_CONFIG = {
@@ -117,6 +121,69 @@ function getPanelPass() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Extended settings + quest history
+// ─────────────────────────────────────────────────────────────────────────────
+const SETTINGS_DEFAULTS = {
+    webhookUrl: '',
+    questNotifications: false,
+    autoClaimQuests: false,
+    presenceRotation: { enabled: false, intervalMinutes: 5, presences: [] },
+    idleSpoof: { enabled: false, timeoutMinutes: 10 },
+    keywordAlerts: { enabled: false, keywords: [] }
+};
+
+function loadSettings() {
+    try {
+        if (!fs.existsSync(SETTINGS_PATH)) return { ...SETTINGS_DEFAULTS };
+        return { ...SETTINGS_DEFAULTS, ...JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8')) };
+    } catch { return { ...SETTINGS_DEFAULTS }; }
+}
+
+function saveSettings(data) {
+    if (isVercel) return;
+    const dir = path.dirname(SETTINGS_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(data, null, 2));
+}
+
+function loadQuestHistory() {
+    try {
+        if (!fs.existsSync(HISTORY_PATH)) return [];
+        return JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'));
+    } catch { return []; }
+}
+
+function appendQuestHistory(entry) {
+    if (isVercel) return;
+    const history = loadQuestHistory();
+    history.unshift(entry);
+    if (history.length > 200) history.splice(200);
+    fs.writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
+}
+
+function sendWebhook(url, payload) {
+    if (!url || typeof url !== 'string' || !url.startsWith('http')) return Promise.resolve();
+    return new Promise((resolve) => {
+        try {
+            const parsedUrl = new URL(url);
+            const body = JSON.stringify(payload);
+            const options = {
+                hostname: parsedUrl.hostname,
+                port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+                path: parsedUrl.pathname + parsedUrl.search,
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body), 'User-Agent': 'Onyx/1.5.0' }
+            };
+            const mod = parsedUrl.protocol === 'https:' ? https : http;
+            const req = mod.request(options, (res) => { res.resume(); res.on('end', resolve); });
+            req.on('error', (e) => { console.error('[Webhook]', e.message); resolve(); });
+            req.write(body);
+            req.end();
+        } catch (e) { console.error('[Webhook]', e.message); resolve(); }
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Discord presence
 // ─────────────────────────────────────────────────────────────────────────────
 let discordClient = null;
@@ -127,6 +194,10 @@ let refreshInterval = null;
 let configWatcher = null;
 let presenceStart = null;
 let questBridge = null;
+let rotationInterval = null;
+let rotationIndex = 0;
+let idleSpoofTimer = null;
+let lastActivityTime = Date.now();
 
 const messageScheduler = new MessageScheduler(() => discordClient);
 const autoFeatures = new AutoFeatures();
@@ -218,7 +289,70 @@ async function applyPresence() {
     }
 }
 
+async function applyGameSpoof(appId, appName) {
+    if (!discordClient || clientState !== 'connected') return;
+    try {
+        const cfg = loadConfig();
+        const spoofedCfg = {
+            ...cfg,
+            rpc: { ...cfg.rpc, enabled: true, type: 'PLAYING', name: appName, application_id: appId }
+        };
+        await discordClient.user.setPresence(buildPresence(spoofedCfg));
+        console.log(`[RPC] Game spoofed: ${appName} (${appId})`);
+    } catch (e) {
+        console.error('[RPC] Game spoof error:', e.message);
+    }
+}
+
+function startPresenceRotation(presences, intervalMs) {
+    if (rotationInterval) { clearInterval(rotationInterval); rotationInterval = null; }
+    if (!presences || presences.length < 2) return;
+    rotationIndex = 0;
+    rotationInterval = setInterval(async () => {
+        if (!discordClient || clientState !== 'connected') return;
+        rotationIndex = (rotationIndex + 1) % presences.length;
+        const p = presences[rotationIndex];
+        try {
+            const cfg = loadConfig();
+            const merged = { ...cfg, rpc: { ...cfg.rpc, ...p, enabled: true } };
+            await discordClient.user.setPresence(buildPresence(merged));
+        } catch (e) {}
+    }, Math.max(30000, intervalMs));
+    console.log(`[Rotation] Started — ${presences.length} presences, ${Math.round(intervalMs / 60000)}m interval`);
+}
+
+function stopPresenceRotation() {
+    if (rotationInterval) { clearInterval(rotationInterval); rotationInterval = null; }
+    rotationIndex = 0;
+}
+
+function startIdleSpoofTimer(timeoutMs) {
+    stopIdleSpoofTimer();
+    lastActivityTime = Date.now();
+    idleSpoofTimer = setInterval(async () => {
+        if (!discordClient || clientState !== 'connected') return;
+        if (Date.now() - lastActivityTime >= timeoutMs) {
+            try {
+                const cfg = loadConfig();
+                const p = buildPresence(cfg);
+                p.status = 'idle';
+                await discordClient.user.setPresence(p);
+            } catch (e) {}
+        }
+    }, 60000);
+}
+
+function stopIdleSpoofTimer() {
+    if (idleSpoofTimer) { clearInterval(idleSpoofTimer); idleSpoofTimer = null; }
+}
+
+function resetActivityTime() {
+    lastActivityTime = Date.now();
+}
+
 function stopClient() {
+    stopPresenceRotation();
+    stopIdleSpoofTimer();
     try { messageScheduler.stop(); } catch {}
     try { autoFeatures.unbind(); } catch {}
 
@@ -266,7 +400,22 @@ async function connectClient(token) {
         await applyPresence();
 
         try { messageScheduler.initialize(); } catch (e) { console.error('[Messages] init:', e.message); }
-        try { autoFeatures.bind(discordClient); } catch (e) { console.error('[Auto] bind:', e.message); }
+        try {
+            const settings = loadSettings();
+            autoFeatures.setWebhookFn((payload) => sendWebhook(settings.webhookUrl, payload));
+            autoFeatures.bind(discordClient);
+        } catch (e) { console.error('[Auto] bind:', e.message); }
+
+        // Start presence rotation / idle spoof from saved settings
+        try {
+            const settings = loadSettings();
+            if (settings.presenceRotation?.enabled && settings.presenceRotation.presences?.length >= 2) {
+                startPresenceRotation(settings.presenceRotation.presences, (settings.presenceRotation.intervalMinutes || 5) * 60000);
+            }
+            if (settings.idleSpoof?.enabled) {
+                startIdleSpoofTimer((settings.idleSpoof.timeoutMinutes || 10) * 60000);
+            }
+        } catch (e) { console.error('[Settings] startup:', e.message); }
 
         refreshInterval = setInterval(() => {
             applyPresence().catch(() => {});
@@ -300,12 +449,47 @@ function getQuestBridge() {
     const cfg = loadConfig();
     const token = (cfg.token || '').trim().replace(/^["']|["']$/g, '');
     questBridge = new QuestManagerBridge(token);
+
+    questBridge.setGameSpoofCallback(async (appId, appName) => {
+        resetActivityTime();
+        if (appId && appName) await applyGameSpoof(appId, appName);
+        else await applyPresence();
+    });
+
+    questBridge.setQuestCompleteCallback(async ({ id, name, appId, success, completedAt }) => {
+        const settings = loadSettings();
+        appendQuestHistory({ id, name, appId, success, completedAt });
+
+        if (success && settings.autoClaimQuests) {
+            try {
+                await questBridge?.client?.rest?.post(`/quests/${id}/claim-rewards`, { body: {} });
+                console.log(`[Quests] Auto-claimed rewards for ${name}`);
+            } catch (e) { console.error('[Quests] Auto-claim error:', e.message); }
+        }
+
+        if (success && settings.questNotifications && settings.webhookUrl) {
+            await sendWebhook(settings.webhookUrl, {
+                username: 'Onyx',
+                embeds: [{
+                    title: '✅ Quest Completed',
+                    description: `**${name}** has been completed`,
+                    fields: [{ name: 'Game', value: name, inline: true }, { name: 'Time', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }],
+                    color: 0x06b6d4,
+                    timestamp: completedAt
+                }]
+            });
+        }
+    });
+
     return questBridge;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // API Routes
 // ─────────────────────────────────────────────────────────────────────────────
+// Reset idle timer on any authenticated API activity
+app.use('/api', (req, res, next) => { resetActivityTime(); next(); });
+
 app.get('/login', (req, res) => {
     if (isVercel) return res.redirect('/');
     res.render('login');
@@ -573,6 +757,97 @@ app.post('/api/quests/clear-logs', (req, res) => {
 
     if (questBridge) questBridge.clearLogs();
     res.json({ success: true });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Token validator
+// ─────────────────────────────────────────────────────────────────────────────
+app.get('/api/validate-token', async (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    try {
+        const cfg = loadConfig();
+        const token = (cfg.token || '').trim().replace(/^["']|["']$/g, '');
+        if (!token || token === 'PASTE_YOUR_TOKEN_HERE') {
+            return res.json({ success: false, error: 'No token configured' });
+        }
+        const result = await new Promise((resolve) => {
+            const options = {
+                hostname: 'discord.com',
+                path: '/api/v10/users/@me',
+                method: 'GET',
+                headers: { 'Authorization': token, 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+            };
+            const req2 = https.request(options, (r) => {
+                let data = '';
+                r.on('data', c => data += c);
+                r.on('end', () => resolve({ status: r.statusCode, body: data }));
+            });
+            req2.on('error', (e) => resolve({ status: 0, body: e.message }));
+            req2.end();
+        });
+        if (result.status === 200) {
+            const user = JSON.parse(result.body);
+            res.json({ success: true, user: { id: user.id, username: user.username, discriminator: user.discriminator, avatar: user.avatar } });
+        } else {
+            res.json({ success: false, error: `HTTP ${result.status}` });
+        }
+    } catch (e) {
+        res.json({ success: false, error: e.message });
+    }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Extended settings
+// ─────────────────────────────────────────────────────────────────────────────
+app.get('/api/settings', (req, res) => {
+    if (isVercel) return res.json(SETTINGS_DEFAULTS);
+    res.json({ success: true, settings: loadSettings() });
+});
+
+app.post('/api/settings', (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    try {
+        const current = loadSettings();
+        const updated = { ...current, ...req.body };
+        saveSettings(updated);
+
+        // Apply rotation changes immediately
+        stopPresenceRotation();
+        if (updated.presenceRotation?.enabled && updated.presenceRotation.presences?.length >= 2 && clientState === 'connected') {
+            startPresenceRotation(updated.presenceRotation.presences, (updated.presenceRotation.intervalMinutes || 5) * 60000);
+        }
+
+        // Apply idle spoof changes
+        stopIdleSpoofTimer();
+        if (updated.idleSpoof?.enabled && clientState === 'connected') {
+            startIdleSpoofTimer((updated.idleSpoof.timeoutMinutes || 10) * 60000);
+        }
+
+        // Update webhook in autoFeatures
+        autoFeatures.setWebhookFn((payload) => sendWebhook(updated.webhookUrl, payload));
+
+        res.json({ success: true, settings: updated });
+    } catch (e) {
+        res.json({ success: false, error: e.message });
+    }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Quest history
+// ─────────────────────────────────────────────────────────────────────────────
+app.get('/api/quests/history', (req, res) => {
+    if (isVercel) return res.json({ success: true, history: [] });
+    res.json({ success: true, history: loadQuestHistory() });
+});
+
+app.delete('/api/quests/history', (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    try {
+        fs.writeFileSync(HISTORY_PATH, '[]');
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false, error: e.message });
+    }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

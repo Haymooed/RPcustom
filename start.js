@@ -8,7 +8,7 @@ const WORK_DIR = '/home/container';
 function run(command, { optional = false, silent = false } = {}) {
     try {
         if (!silent) console.log(`> ${command}`);
-        execSync(command, { stdio: silent ? 'pipe' : 'inherit', cwd: WORK_DIR });
+        execSync(command, { stdio: silent ? 'pipe' : 'inherit', cwd: WORK_DIR, shell: true });
         return true;
     } catch (error) {
         if (!silent) console.error(`Failed: ${command}`);
@@ -16,6 +16,10 @@ function run(command, { optional = false, silent = false } = {}) {
         return false;
     }
 }
+
+// 0. Wipe ALL npm caches from previous runs — this is the main cause of ENOSPC
+//    Each crashed install leaves behind cached tarballs that pile up across restarts.
+run('rm -rf /tmp/.npm-cache /tmp/npm-c /root/.npm /home/container/.npm /tmp/npm-cache-* ~/.npm', { optional: true, silent: true });
 
 // 1. Smart Update (Git)
 if (!fs.existsSync(path.join(WORK_DIR, '.git'))) {
@@ -29,7 +33,6 @@ if (!fs.existsSync(path.join(WORK_DIR, '.git'))) {
     run(`git fetch --depth=1 origin main`, { silent: true });
     const local = execSync('git rev-parse HEAD', { cwd: WORK_DIR }).toString().trim();
     const remote = execSync('git rev-parse FETCH_HEAD', { cwd: WORK_DIR }).toString().trim();
-
     if (local !== remote) {
         console.log("Updates found! Updating...");
         run(`git reset --hard origin/main`);
@@ -38,36 +41,25 @@ if (!fs.existsSync(path.join(WORK_DIR, '.git'))) {
     }
 }
 
-// 2. Optimized Dependency Install
-const NPM_FLAGS = [
-    '--no-package-lock',
-    '--omit=optional',
-    '--legacy-peer-deps',
-    '--ignore-scripts',   // skip native binary compilation (voice/audio not used)
-    '--no-fund',
-    '--no-audit',
-    `--cache /tmp/npm-cache-${process.pid}`, // isolate cache so it doesn't bloat disk
-].join(' ');
-
-const CACHE_DIR = `/tmp/npm-cache-${process.pid}`;
-
-function cleanCache() {
-    run(`rm -rf ${CACHE_DIR}`, { optional: true, silent: true });
-}
+// 2. Install dependencies
+//    --ignore-scripts  → skip native binary compilation (not needed, saves ~100MB)
+//    --omit=optional   → skip firebase-admin and other heavy optional packages
+//    --legacy-peer-deps→ allow discord.js-selfbot-v13 (v13 era) alongside @discordjs v2
+//    --cache /tmp/npm-c → isolated throwaway cache dir
+const NPM = 'npm install --no-package-lock --omit=optional --legacy-peer-deps --ignore-scripts --no-fund --no-audit --cache /tmp/npm-c';
 
 const nodeModulesExist = fs.existsSync(path.join(WORK_DIR, 'node_modules'));
 if (!nodeModulesExist) {
-    // Wipe any stale global npm cache first
-    run(`npm cache clean --force`, { optional: true, silent: true });
     console.log("Installing dependencies...");
-    run(`npm install ${NPM_FLAGS}`);
-    cleanCache();
+    run(NPM);
 } else {
     console.log("Verifying dependencies...");
-    run(`npm install ${NPM_FLAGS} --prefer-offline`, { silent: true });
-    cleanCache();
+    run(`${NPM} --prefer-offline`, { silent: true });
 }
 
-// 3. Start the server
+// 3. Wipe the install cache immediately — we don't need it anymore
+run('rm -rf /tmp/npm-c', { optional: true, silent: true });
+
+// 4. Start the server
 console.log("Starting the server...");
 run(`node server.js`);

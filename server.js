@@ -9,6 +9,7 @@ const path = require('path');
 const yaml = require('js-yaml');
 const https = require('https');
 const http = require('http');
+const crypto = require('crypto');
 const { Client } = require('discord.js-selfbot-v13');
 const QuestManagerBridge = require('./quests/manager');
 const { MessageScheduler } = require('./automation/messages');
@@ -19,6 +20,7 @@ const app = express();
 const CONFIG_PATH = path.join(__dirname, 'config.yml');
 const SETTINGS_PATH = path.join(__dirname, 'data', 'settings.json');
 const HISTORY_PATH = path.join(__dirname, 'data', 'quest-history.json');
+const ACCOUNTS_PATH = path.join(__dirname, 'data', 'accounts.json');
 const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL_URL;
 
 const DEFAULT_CONFIG = {
@@ -848,6 +850,215 @@ app.delete('/api/quests/history', (req, res) => {
     } catch (e) {
         res.json({ success: false, error: e.message });
     }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dashboard stats
+// ─────────────────────────────────────────────────────────────────────────────
+app.get('/api/dashboard', (req, res) => {
+    if (isVercel) return res.json({ state: 'disconnected', questsToday: 0, questsTotal: 0 });
+    const history = loadQuestHistory();
+    const today = new Date().toDateString();
+    const questsToday = history.filter(h => h.success && new Date(h.completedAt).toDateString() === today).length;
+    const questsTotal = history.filter(h => h.success).length;
+    let ping = null;
+    let avatar = null;
+    let userId = null;
+    if (discordClient && clientState === 'connected') {
+        ping = discordClient.ws.ping || null;
+        try { avatar = discordClient.user?.displayAvatarURL({ format: 'png', size: 128 }); } catch {}
+        userId = discordClient.user?.id || null;
+    }
+    res.json({
+        success: true, state: clientState, tag: currentTag, userId, avatar,
+        uptimeMs: presenceStart ? Date.now() - presenceStart : 0,
+        ping, questsToday, questsTotal,
+        recentHistory: history.slice(0, 5)
+    });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DM Inbox
+// ─────────────────────────────────────────────────────────────────────────────
+app.get('/api/dms', async (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    if (!requireConnected(res)) return;
+    try {
+        const dmChannels = discordClient.channels.cache.filter(c => c.type === 'DM');
+        const result = [];
+        for (const [, channel] of dmChannels) {
+            const recipient = channel.recipient;
+            if (!recipient) continue;
+            let lastMessage = null;
+            try {
+                const msgs = await channel.messages.fetch({ limit: 1 });
+                const msg = msgs.first();
+                if (msg) lastMessage = { id: msg.id, content: msg.content.slice(0, 100), authorId: msg.author.id, timestamp: msg.createdTimestamp };
+            } catch {}
+            result.push({
+                id: channel.id,
+                recipientId: recipient.id,
+                recipientName: recipient.username,
+                recipientAvatar: (() => { try { return recipient.displayAvatarURL({ format: 'png', size: 64 }); } catch { return null; } })(),
+                lastMessage
+            });
+        }
+        result.sort((a, b) => (b.lastMessage?.timestamp || 0) - (a.lastMessage?.timestamp || 0));
+        res.json({ success: true, channels: result.slice(0, 60) });
+    } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+app.get('/api/dms/:channelId/messages', async (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    if (!requireConnected(res)) return;
+    try {
+        const channel = await discordClient.channels.fetch(req.params.channelId);
+        if (!channel || channel.type !== 'DM') return res.json({ success: false, error: 'Channel not found' });
+        const msgs = await channel.messages.fetch({ limit: 50 });
+        const messages = msgs.map(m => ({
+            id: m.id,
+            content: m.content,
+            authorId: m.author.id,
+            authorName: m.author.username,
+            authorAvatar: (() => { try { return m.author.displayAvatarURL({ format: 'png', size: 32 }); } catch { return null; } })(),
+            timestamp: m.createdTimestamp,
+            isSelf: m.author.id === discordClient.user.id
+        })).sort((a, b) => a.timestamp - b.timestamp);
+        res.json({ success: true, messages, selfId: discordClient.user.id });
+    } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+app.post('/api/dms/:channelId/send', async (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    if (!requireConnected(res)) return;
+    try {
+        const { message } = req.body || {};
+        if (!message) return res.json({ success: false, error: 'message required' });
+        const channel = await discordClient.channels.fetch(req.params.channelId);
+        if (!channel) return res.json({ success: false, error: 'Channel not found' });
+        const sent = await channel.send(message);
+        res.json({ success: true, messageId: sent.id });
+    } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Server browser
+// ─────────────────────────────────────────────────────────────────────────────
+app.get('/api/servers', (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    if (!requireConnected(res)) return;
+    try {
+        const guilds = discordClient.guilds.cache.map(g => ({
+            id: g.id,
+            name: g.name,
+            icon: (() => { try { return g.iconURL({ format: 'png', size: 64 }); } catch { return null; } })(),
+            memberCount: g.memberCount,
+            ownerId: g.ownerId,
+            isOwner: g.ownerId === discordClient.user.id,
+            joinedAt: g.joinedTimestamp
+        })).sort((a, b) => a.name.localeCompare(b.name));
+        res.json({ success: true, guilds, total: guilds.length });
+    } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Multi-account
+// ─────────────────────────────────────────────────────────────────────────────
+function loadAccounts() {
+    try {
+        if (!fs.existsSync(ACCOUNTS_PATH)) return [];
+        return JSON.parse(fs.readFileSync(ACCOUNTS_PATH, 'utf8'));
+    } catch { return []; }
+}
+
+function saveAccounts(accounts) {
+    if (isVercel) return;
+    const dir = path.dirname(ACCOUNTS_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(ACCOUNTS_PATH, JSON.stringify(accounts, null, 2));
+}
+
+app.get('/api/accounts', (req, res) => {
+    if (isVercel) return res.json({ success: true, accounts: [] });
+    const accounts = loadAccounts().map(a => ({
+        id: a.id, nickname: a.nickname, active: a.active, addedAt: a.addedAt,
+        tokenPreview: a.token ? a.token.slice(0, 12) + '…' : ''
+    }));
+    res.json({ success: true, accounts });
+});
+
+app.post('/api/accounts', (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    const { nickname, token } = req.body || {};
+    if (!nickname || !token) return res.json({ success: false, error: 'nickname and token required' });
+    const accounts = loadAccounts();
+    const id = crypto.randomUUID();
+    if (accounts.length === 0) {
+        // First account auto-becomes active
+        accounts.push({ id, nickname, token: token.trim(), addedAt: new Date().toISOString(), active: true });
+    } else {
+        accounts.push({ id, nickname, token: token.trim(), addedAt: new Date().toISOString(), active: false });
+    }
+    saveAccounts(accounts);
+    res.json({ success: true, id });
+});
+
+app.delete('/api/accounts/:id', (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    const accounts = loadAccounts().filter(a => a.id !== req.params.id);
+    saveAccounts(accounts);
+    res.json({ success: true });
+});
+
+app.post('/api/accounts/switch', async (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    const { id } = req.body || {};
+    const accounts = loadAccounts();
+    const account = accounts.find(a => a.id === id);
+    if (!account) return res.json({ success: false, error: 'Account not found' });
+    accounts.forEach(a => { a.active = a.id === id; });
+    saveAccounts(accounts);
+    const cfg = loadConfig();
+    cfg.token = account.token;
+    saveConfig(cfg);
+    await connectClient(account.token);
+    setTimeout(() => {
+        res.json({ success: clientState !== 'error', state: clientState, tag: currentTag, error: clientError });
+    }, 3500);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Config backup & restore
+// ─────────────────────────────────────────────────────────────────────────────
+app.get('/api/backup', (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    try {
+        const backup = {
+            _version: '1.6.0',
+            _exportedAt: new Date().toISOString(),
+            config: loadConfig(),
+            settings: loadSettings(),
+            autoFeatures: autoFeatures.config(),
+            messages: messageScheduler.list(),
+            questHistory: loadQuestHistory()
+        };
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="onyx-backup-${Date.now()}.json"`);
+        res.send(JSON.stringify(backup, null, 2));
+    } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+app.post('/api/restore', async (req, res) => {
+    if (isVercel) return res.status(403).json({ success: false, error: 'Access Denied' });
+    try {
+        const data = req.body;
+        const restored = [];
+        if (data.config) { saveConfig({ ...loadConfig(), ...data.config }); restored.push('config'); }
+        if (data.settings) { saveSettings({ ...loadSettings(), ...data.settings }); restored.push('settings'); }
+        if (data.autoFeatures) { autoFeatures.update(data.autoFeatures); restored.push('automation'); }
+        if (restored.includes('config') && clientState === 'connected') await applyPresence();
+        res.json({ success: true, restored });
+    } catch (e) { res.json({ success: false, error: e.message }); }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

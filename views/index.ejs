@@ -5,1503 +5,1135 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Onyx</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0d1117;
-  --surface: #161b22;
-  --card: #1c2130;
-  --card-2: #21262d;
-  --border: rgba(255,255,255,0.07);
-  --border-focus: rgba(6,182,212,0.4);
-  --primary: #06b6d4;
-  --primary-2: #6366f1;
-  --grad: linear-gradient(135deg, #06b6d4, #6366f1);
-  --grad-text: linear-gradient(135deg, #22d3ee, #818cf8);
-  --text: #e6edf3;
-  --text-2: #8b949e;
-  --text-3: #3d444d;
-  --green: #3fb950;
-  --yellow: #d29922;
-  --red: #f85149;
-  --sidebar-w: 224px;
-  --radius: 8px;
-  --radius-lg: 12px;
+  --bg: #0d1117; --surface: #161b22; --card: #1c2130; --card-2: #21262d;
+  --border: rgba(255,255,255,0.07); --border-focus: rgba(6,182,212,0.4);
+  --primary: #06b6d4; --grad: linear-gradient(135deg,#06b6d4,#6366f1);
+  --grad-text: linear-gradient(135deg,#22d3ee,#818cf8);
+  --text: #e6edf3; --text-2: #8b949e; --text-3: #3d444d;
+  --green: #3fb950; --yellow: #d29922; --red: #f85149; --purple: #818cf8;
+  --sidebar-w: 220px; --radius: 8px; --radius-lg: 12px;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.5;height:100vh;display:flex;overflow:hidden}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Sidebar */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:14px 10px;overflow:hidden}
+.brand{display:flex;align-items:center;gap:9px;padding:4px 8px 16px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.brand-icon{width:28px;height:28px;background:var(--grad);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 12px rgba(6,182,212,.22)}
+.brand-icon svg{width:14px;height:14px;fill:#fff}
+.brand-name{font-size:15px;font-weight:700;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.02em}
+.nav-scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.nav-scroll::-webkit-scrollbar{width:0}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--radius);color:var(--text-2);cursor:pointer;transition:background .12s,color .12s;font-size:13px;font-weight:500;user-select:none;border:1px solid transparent;margin-bottom:2px;white-space:nowrap}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.active{background:rgba(6,182,212,.1);color:#22d3ee;border-color:rgba(6,182,212,.18)}
+.nav-item svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8}
+.nav-sep{height:1px;background:var(--border);margin:6px 4px}
+.nav-label{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;padding:6px 9px 3px}
+.sidebar-footer{padding:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);margin-top:8px}
+.status-info{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);flex-shrink:0;transition:background .3s,box-shadow .3s}
+.dot.connected{background:var(--green);box-shadow:0 0 6px rgba(63,185,80,.5)}
+.dot.connecting{background:var(--yellow);animation:blink 1s infinite}
+.dot.error{background:var(--red)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.status-name{font-size:12px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.footer-btns{display:flex;gap:5px}
+.btn-sm{flex:1;padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card-2);color:var(--text-2);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;text-align:center}
+.btn-sm:hover{color:var(--text)}
+.btn-sm.primary{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(6,182,212,.2)}
+.btn-sm.danger{background:rgba(248,81,73,.1);color:var(--red);border-color:rgba(248,81,73,.2)}
+.btn-sm.signout{width:100%;margin-top:5px}
 
-body {
-  font-family: 'Inter', -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 13.5px;
-  line-height: 1.5;
-  height: 100vh;
-  display: flex;
-  overflow: hidden;
-}
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:48px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.topbar-title{font-size:14px;font-weight:600;flex:1}
+.content{flex:1;overflow-y:auto;padding:20px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:2px}
+.section{display:none}
+.section.active{display:block}
 
-/* ── Sidebar ── */
-.sidebar {
-  width: var(--sidebar-w);
-  min-width: var(--sidebar-w);
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  padding: 16px 10px;
-  overflow: hidden;
-}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-2);display:flex;align-items:center;gap:6px}
+.card-title svg{width:12px;height:12px;stroke:var(--primary);fill:none;stroke-width:2}
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 6px 10px 18px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 10px;
-}
+/* Layout */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.cols{display:flex;gap:12px}
+.cols>.card{flex:1;margin-bottom:0}
 
-.brand-icon {
-  width: 30px;
-  height: 30px;
-  background: var(--grad);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 0 14px rgba(6,182,212,0.25);
-}
+/* Forms */
+.field{display:flex;flex-direction:column;gap:4px}
+label{font-size:10.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.07em}
+input,select,textarea{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;outline:none;transition:border-color .12s,box-shadow .12s;font-family:inherit;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(6,182,212,.07)}
+input::placeholder,textarea::placeholder{color:var(--text-3)}
+select option{background:var(--card)}
+textarea{resize:vertical;min-height:68px;line-height:1.5}
+.input-row{display:flex;gap:7px;align-items:flex-end}
+.input-row .field{flex:1}
+.form-gap{display:flex;flex-direction:column;gap:10px}
 
-.brand-icon svg { width: 16px; height: 16px; fill: #fff; }
+/* Buttons */
+.btn{padding:7px 14px;border-radius:var(--radius);border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn-full{width:100%;justify-content:center}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 2px 8px rgba(6,182,212,.2)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 14px rgba(6,182,212,.3)}
+.btn-ghost{background:var(--card-2);color:var(--text-2);border:1px solid var(--border)}
+.btn-ghost:hover:not(:disabled){color:var(--text);border-color:rgba(255,255,255,.12)}
+.btn-danger{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.2)}
+.btn-danger:hover:not(:disabled){background:rgba(248,81,73,.18)}
+.icon-btn{width:26px;height:26px;border:none;background:transparent;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:all .12s;flex-shrink:0}
+.icon-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.icon-btn.del:hover{background:rgba(248,81,73,.1);color:var(--red)}
+.icon-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
 
-.brand-name {
-  font-size: 15px;
-  font-weight: 700;
-  background: var(--grad-text);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.02em;
-}
+/* Toggle */
+.toggle-row{display:flex;align-items:center;gap:10px;padding:5px 0}
+.toggle-info{flex:1}
+.toggle-label{font-size:13px;font-weight:500}
+.toggle-desc{font-size:11.5px;color:var(--text-2);margin-top:1px}
+.toggle{width:36px;height:20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;position:relative;transition:all .18s;flex-shrink:0}
+.toggle.on{background:var(--primary);border-color:var(--primary);box-shadow:0 0 7px rgba(6,182,212,.3)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;background:rgba(255,255,255,.4);border-radius:50%;top:2px;left:2px;transition:all .18s}
+.toggle.on::after{left:18px;background:#fff}
 
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 8px 10px;
-  border-radius: var(--radius);
-  color: var(--text-2);
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-  font-size: 13px;
-  font-weight: 500;
-  user-select: none;
-  border: 1px solid transparent;
-  margin-bottom: 2px;
-}
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.badge-cyan{background:rgba(6,182,212,.12);color:#22d3ee}
+.badge-green{background:rgba(63,185,80,.12);color:#3fb950}
+.badge-red{background:rgba(248,81,73,.12);color:#f85149}
+.badge-yellow{background:rgba(210,153,34,.12);color:#d29922}
+.badge-purple{background:rgba(129,140,248,.12);color:#818cf8}
+.badge-gray{background:rgba(255,255,255,.06);color:var(--text-2)}
 
-.nav-item:hover { background: var(--card); color: var(--text); }
-.nav-item.active { background: rgba(6,182,212,0.1); color: #22d3ee; border-color: rgba(6,182,212,0.18); }
-.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.8; }
+/* Stat cards */
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px}
+.stat-val{font-size:24px;font-weight:700;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:3px}
+.stat-lbl{font-size:11.5px;color:var(--text-2)}
 
-.nav-sep { height: 1px; background: var(--border); margin: 8px 4px; }
+/* Quest cards */
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.quest-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px;display:flex;flex-direction:column;gap:9px;transition:border-color .12s}
+.quest-card:hover{border-color:rgba(6,182,212,.2)}
+.quest-game{font-size:13px;font-weight:600}
+.quest-name{font-size:12px;color:var(--text-2)}
+.quest-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
 
-.sidebar-footer {
-  margin-top: auto;
-  padding: 12px 10px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
+/* Terminal */
+.terminal{background:#010409;border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;height:220px;overflow-y:auto;color:#8b949e;line-height:1.8}
+.terminal::-webkit-scrollbar{width:3px}
+.terminal::-webkit-scrollbar-thumb{background:rgba(255,255,255,.05)}
+.log-ok{color:#3fb950}.log-err{color:#f85149}.log-info{color:#58a6ff}.log-dim{color:#484f58}
 
-.status-info { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+/* RPC preview */
+.rpc-preview{background:#1e2130;border:1px solid rgba(6,182,212,.12);border-radius:var(--radius-lg);padding:13px;min-height:90px}
+.preview-type{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#22d3ee;margin-bottom:4px}
+.preview-name{font-size:13.5px;font-weight:700;margin-bottom:2px}
+.preview-detail{font-size:12px;color:var(--text-2)}
 
-.dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--text-3);
-  flex-shrink: 0;
-  transition: background 0.3s, box-shadow 0.3s;
-}
-.dot.connected { background: var(--green); box-shadow: 0 0 6px rgba(63,185,80,0.5); }
-.dot.connecting { background: var(--yellow); animation: blink 1s infinite; }
-.dot.error { background: var(--red); }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+/* Item list */
+.item-list{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.item-row{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:6px 9px;font-size:13px}
+.item-row .it{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item-row .im{font-size:11px;color:var(--text-2);white-space:nowrap}
 
-.status-name { font-size: 12.5px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Quest banner */
+.quest-banner{background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.18);border-radius:var(--radius-lg);padding:10px 13px;display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.quest-banner-dot{width:7px;height:7px;background:var(--primary);border-radius:50%;animation:blink 1.2s infinite;flex-shrink:0}
 
-.footer-btns { display: flex; gap: 6px; }
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:7px 11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-2);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 11px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+td.dim{color:var(--text-2);font-size:12px}
 
-.btn-sm {
-  flex: 1;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--card-2);
-  color: var(--text-2);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.12s;
-  text-align: center;
-}
+/* Save bar */
+#saveBar{position:fixed;bottom:18px;right:20px;background:var(--card);border:1px solid rgba(6,182,212,.3);border-radius:var(--radius-lg);padding:10px 13px;display:none;align-items:center;gap:10px;box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:200;animation:fadeUp .2s ease}
+#saveBar.visible{display:flex}
+.save-msg{font-size:12px;color:var(--text-2)}
 
-.btn-sm:hover { color: var(--text); border-color: rgba(255,255,255,0.12); }
-.btn-sm.primary { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 2px 10px rgba(6,182,212,0.2); }
-.btn-sm.primary:hover { box-shadow: 0 2px 14px rgba(6,182,212,0.35); }
-.btn-sm.danger { background: rgba(248,81,73,0.1); color: var(--red); border-color: rgba(248,81,73,0.2); }
-.btn-sm.danger:hover { background: rgba(248,81,73,0.18); }
+/* Toasts */
+#toasts{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column-reverse;gap:7px;z-index:500;pointer-events:none}
+.toast{padding:8px 14px;border-radius:var(--radius);font-size:12.5px;font-weight:500;animation:fadeUp .2s ease;border:1px solid;white-space:nowrap}
+.toast.ok{background:rgba(63,185,80,.12);border-color:rgba(63,185,80,.3);color:#3fb950}
+.toast.err{background:rgba(248,81,73,.12);border-color:rgba(248,81,73,.3);color:#f85149}
+.toast.info{background:rgba(6,182,212,.12);border-color:rgba(6,182,212,.3);color:#22d3ee}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── Main ── */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+/* DM Inbox */
+.dm-layout{display:flex;gap:12px;height:560px}
+.dm-list{width:240px;flex-shrink:0;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.dm-list::-webkit-scrollbar{width:3px}
+.dm-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06)}
+.dm-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius);cursor:pointer;transition:background .1s;border:1px solid transparent}
+.dm-item:hover{background:rgba(255,255,255,.04)}
+.dm-item.active{background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.15)}
+.dm-avatar{width:34px;height:34px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.dm-avatar img{width:100%;height:100%;object-fit:cover}
+.dm-info{flex:1;overflow:hidden}
+.dm-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-preview{font-size:11.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-chat{flex:1;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.dm-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.dm-messages::-webkit-scrollbar{width:3px}
+.dm-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06)}
+.dm-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-2);font-size:13px}
+.msg-row{display:flex;gap:8px;align-items:flex-end}
+.msg-row.self{flex-direction:row-reverse}
+.msg-avatar{width:26px;height:26px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.msg-avatar img{width:100%;height:100%;object-fit:cover}
+.msg-bubble{max-width:70%;padding:7px 11px;border-radius:10px;font-size:13px;line-height:1.5;word-break:break-word}
+.msg-row.other .msg-bubble{background:var(--card-2);border-bottom-left-radius:3px}
+.msg-row.self .msg-bubble{background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.2);border-bottom-right-radius:3px}
+.msg-time{font-size:10px;color:var(--text-3);margin-top:2px;text-align:center}
+.dm-input-bar{padding:10px;border-top:1px solid var(--border);display:flex;gap:8px}
+.dm-input-bar input{flex:1}
 
-.topbar {
-  height: 50px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 22px;
-  flex-shrink: 0;
-}
+/* Server browser */
+.server-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.server-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;transition:border-color .12s}
+.server-card:hover{border-color:rgba(6,182,212,.2)}
+.server-icon{width:52px;height:52px;border-radius:14px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.server-icon img{width:100%;height:100%;object-fit:cover}
+.server-name{font-size:13px;font-weight:600;word-break:break-word}
+.server-meta{font-size:11.5px;color:var(--text-2)}
 
-.topbar-title { font-size: 14px; font-weight: 600; }
+/* Account cards */
+.account-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px;display:flex;align-items:center;gap:12px;transition:border-color .12s}
+.account-card.active-acc{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.04)}
+.acc-avatar{width:38px;height:38px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.acc-info{flex:1;overflow:hidden}
+.acc-name{font-size:13.5px;font-weight:600}
+.acc-token{font-size:11px;color:var(--text-2);font-family:'JetBrains Mono',monospace;margin-top:1px}
 
-.content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 22px;
-}
+/* Dashboard account card */
+.dash-account{display:flex;align-items:center;gap:14px;padding:4px 0}
+.dash-avatar{width:52px;height:52px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.dash-avatar img{width:100%;height:100%;object-fit:cover}
+.dash-tag{font-size:18px;font-weight:700;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.dash-id{font-size:11.5px;color:var(--text-2);margin-top:2px;font-family:'JetBrains Mono',monospace}
 
-.content::-webkit-scrollbar { width: 4px; }
-.content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 2px; }
-
-/* ── Sections ── */
-.section { display: none; }
-.section.active { display: block; }
-
-/* ── Cards ── */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  margin-bottom: 14px;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.card-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-2);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.card-title svg { width: 13px; height: 13px; stroke: var(--primary); fill: none; stroke-width: 2; }
-
-/* ── Layout ── */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-.cols { display: flex; gap: 14px; }
-.cols > .card { flex: 1; margin-bottom: 0; }
-
-/* ── Form elements ── */
-.field { display: flex; flex-direction: column; gap: 5px; }
-
-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-}
-
-input, select, textarea {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-size: 13px;
-  padding: 8px 11px;
-  outline: none;
-  transition: border-color 0.12s, box-shadow 0.12s;
-  font-family: inherit;
-  width: 100%;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(6,182,212,0.07);
-}
-
-input::placeholder, textarea::placeholder { color: var(--text-3); }
-select option { background: var(--card); }
-textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
-
-.input-row { display: flex; gap: 8px; align-items: flex-end; }
-.input-row .field { flex: 1; }
-.form-gap { display: flex; flex-direction: column; gap: 12px; }
-
-/* ── Buttons ── */
-.btn {
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  border: none;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.12s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-.btn-full { width: 100%; justify-content: center; }
-
-.btn-primary { background: var(--grad); color: #fff; box-shadow: 0 2px 10px rgba(6,182,212,0.2); }
-.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(6,182,212,0.3); }
-
-.btn-ghost { background: var(--card-2); color: var(--text-2); border: 1px solid var(--border); }
-.btn-ghost:hover:not(:disabled) { color: var(--text); border-color: rgba(255,255,255,0.12); }
-
-.btn-danger { background: rgba(248,81,73,0.1); color: var(--red); border: 1px solid rgba(248,81,73,0.2); }
-.btn-danger:hover:not(:disabled) { background: rgba(248,81,73,0.18); }
-
-.icon-btn {
-  width: 28px; height: 28px;
-  border: none; background: transparent;
-  border-radius: 6px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-2); transition: all 0.12s; flex-shrink: 0;
-}
-
-.icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
-.icon-btn.del:hover { background: rgba(248,81,73,0.1); color: var(--red); }
-.icon-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
-
-/* ── Toggle ── */
-.toggle-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; }
-.toggle-info { flex: 1; }
-.toggle-label { font-size: 13.5px; font-weight: 500; color: var(--text); }
-.toggle-desc { font-size: 12px; color: var(--text-2); margin-top: 1px; }
-
-.toggle {
-  width: 38px; height: 21px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 11px; cursor: pointer;
-  position: relative; transition: all 0.18s; flex-shrink: 0;
-}
-
-.toggle.on { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 8px rgba(6,182,212,0.3); }
-.toggle::after {
-  content: ''; position: absolute;
-  width: 15px; height: 15px;
-  background: rgba(255,255,255,0.45); border-radius: 50%;
-  top: 2px; left: 2px; transition: all 0.18s;
-}
-.toggle.on::after { left: 19px; background: #fff; }
-
-/* ── Badge ── */
-.badge {
-  display: inline-flex; align-items: center;
-  padding: 2px 7px; border-radius: 4px;
-  font-size: 10.5px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.04em;
-}
-
-.badge-cyan   { background: rgba(6,182,212,0.12);  color: #22d3ee; }
-.badge-green  { background: rgba(63,185,80,0.12);  color: #3fb950; }
-.badge-red    { background: rgba(248,81,73,0.12);  color: #f85149; }
-.badge-yellow { background: rgba(210,153,34,0.12); color: #d29922; }
-.badge-purple { background: rgba(99,102,241,0.12); color: #818cf8; }
-.badge-gray   { background: rgba(255,255,255,0.06);color: var(--text-2); }
-
-/* ── Quest cards ── */
-.quest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(256px, 1fr)); gap: 10px; }
-
-.quest-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 14px;
-  display: flex; flex-direction: column; gap: 10px;
-  transition: border-color 0.12s;
-}
-.quest-card:hover { border-color: rgba(6,182,212,0.2); }
-.quest-game { font-size: 13.5px; font-weight: 600; }
-.quest-name { font-size: 12px; color: var(--text-2); }
-.quest-foot { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
-
-/* ── Terminal ── */
-.terminal {
-  background: #010409; border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 14px 16px;
-  font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
-  height: 240px; overflow-y: auto; color: #8b949e; line-height: 1.8;
-}
-.terminal::-webkit-scrollbar { width: 4px; }
-.terminal::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); }
-.log-ok   { color: #3fb950; }
-.log-err  { color: #f85149; }
-.log-info { color: #58a6ff; }
-.log-dim  { color: #484f58; }
-
-/* ── Preview ── */
-.rpc-preview {
-  background: #1e2130; border: 1px solid rgba(6,182,212,0.12);
-  border-radius: var(--radius-lg); padding: 14px; min-height: 100px;
-}
-.preview-type { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #22d3ee; margin-bottom: 5px; }
-.preview-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
-.preview-detail { font-size: 12.5px; color: var(--text-2); }
-
-/* ── Item list ── */
-.item-list { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
-
-.item-row {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 7px 10px; font-size: 13px;
-}
-.item-row .it { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.item-row .im { font-size: 11px; color: var(--text-2); white-space: nowrap; }
-
-/* ── Quest banner ── */
-.quest-banner {
-  background: rgba(6,182,212,0.07); border: 1px solid rgba(6,182,212,0.18);
-  border-radius: var(--radius-lg); padding: 11px 14px;
-  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
-}
-.quest-banner-dot {
-  width: 7px; height: 7px; background: var(--primary);
-  border-radius: 50%; animation: blink 1.2s infinite;
-}
-
-/* ── Table ── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th {
-  text-align: left; padding: 8px 12px; font-size: 10.5px;
-  font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
-  color: var(--text-2); border-bottom: 1px solid var(--border); white-space: nowrap;
-}
-td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text); }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(255,255,255,0.018); }
-td.dim { color: var(--text-2); font-size: 12px; }
-
-/* ── Stats ── */
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
-.stat-val {
-  font-size: 26px; font-weight: 700;
-  background: var(--grad-text); -webkit-background-clip: text;
-  background-clip: text; -webkit-text-fill-color: transparent;
-  line-height: 1; margin-bottom: 4px;
-}
-.stat-lbl { font-size: 12px; color: var(--text-2); }
-
-/* ── Save bar ── */
-#saveBar {
-  position: fixed; bottom: 20px; right: 22px;
-  background: var(--card); border: 1px solid rgba(6,182,212,0.3);
-  border-radius: var(--radius-lg); padding: 11px 14px;
-  display: none; align-items: center; gap: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5); z-index: 200;
-  animation: fadeUp 0.2s ease;
-}
-#saveBar.visible { display: flex; }
-.save-msg { font-size: 12.5px; color: var(--text-2); }
-
-/* ── Toasts ── */
-#toasts {
-  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column-reverse; gap: 8px;
-  z-index: 500; pointer-events: none;
-}
-.toast {
-  padding: 9px 16px; border-radius: var(--radius);
-  font-size: 13px; font-weight: 500;
-  animation: fadeUp 0.2s ease; border: 1px solid; white-space: nowrap;
-}
-.toast.ok   { background: rgba(63,185,80,0.12);  border-color: rgba(63,185,80,0.3);  color: #3fb950; }
-.toast.err  { background: rgba(248,81,73,0.12);  border-color: rgba(248,81,73,0.3);  color: #f85149; }
-.toast.info { background: rgba(6,182,212,0.12);  border-color: rgba(6,182,212,0.3);  color: #22d3ee; }
-
-@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-
-/* ── Responsive ── */
-@media (max-width: 820px) {
-  .sidebar { width: 52px; min-width: 52px; padding: 12px 6px; }
-  .brand-name, .nav-item span, .sidebar-footer .status-name, .footer-btns { display: none; }
-  .brand { justify-content: center; padding: 6px; }
-  .nav-item { justify-content: center; padding: 9px; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .grid-2 { grid-template-columns: 1fr; }
-  .cols { flex-direction: column; }
-}
+@media(max-width:820px){.sidebar{width:48px;min-width:48px;padding:10px 5px}.brand-name,.nav-item span,.nav-label,.sidebar-footer .status-name,.footer-btns{display:none}.brand{justify-content:center;padding:4px}.nav-item{justify-content:center;padding:8px}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.cols{flex-direction:column}.dm-layout{flex-direction:column;height:auto}.dm-list{width:100%;height:180px}}
 </style>
 </head>
 <body>
 
-<!-- ── SIDEBAR ── -->
 <aside class="sidebar">
   <div class="brand">
-    <div class="brand-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5L12 1zm0 2.18l7 3.12V11c0 4.52-3.05 8.78-7 10.01C8.05 19.78 5 15.52 5 11V6.3l7-3.12z"/></svg>
-    </div>
+    <div class="brand-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5L12 1zm0 2.18l7 3.12V11c0 4.52-3.05 8.78-7 10.01C8.05 19.78 5 15.52 5 11V6.3l7-3.12z"/></svg></div>
     <span class="brand-name">Onyx</span>
   </div>
-
-  <div data-sec="presence" class="nav-item active" onclick="showSection(this)">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
-    <span>Presence</span>
-  </div>
-  <div data-sec="quests" class="nav-item" onclick="showSection(this)">
-    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-    <span>Quests</span>
-  </div>
-  <div data-sec="automation" class="nav-item" onclick="showSection(this)">
-    <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-    <span>Automation</span>
-  </div>
-  <div data-sec="messages" class="nav-item" onclick="showSection(this)">
-    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    <span>Messages</span>
-  </div>
-  <div data-sec="utility" class="nav-item" onclick="showSection(this)">
-    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-    <span>Utility</span>
-  </div>
-  <div class="nav-sep"></div>
-  <div data-sec="settings" class="nav-item" onclick="showSection(this)">
-    <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    <span>Settings</span>
-  </div>
-
-  <div class="sidebar-footer">
-    <div class="status-info">
-      <div class="dot" id="footDot"></div>
-      <span class="status-name" id="footTag">Not connected</span>
+  <div class="nav-scroll">
+    <div data-sec="dashboard" class="nav-item active" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
     </div>
+    <div class="nav-sep"></div>
+    <div data-sec="presence" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
+      <span>Presence</span>
+    </div>
+    <div data-sec="quests" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>Quests</span>
+    </div>
+    <div data-sec="automation" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <span>Automation</span>
+    </div>
+    <div data-sec="messages" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <span>Messages</span>
+    </div>
+    <div data-sec="utility" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+      <span>Utility</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div data-sec="dms" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>DM Inbox</span>
+    </div>
+    <div data-sec="servers" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+      <span>Servers</span>
+    </div>
+    <div data-sec="accounts" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>Accounts</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div data-sec="settings" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <span>Settings</span>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="status-info"><div class="dot" id="footDot"></div><span class="status-name" id="footTag">Not connected</span></div>
     <div class="footer-btns">
       <button class="btn-sm primary" id="connectBtn" onclick="toggleConnect()">Connect</button>
       <button class="btn-sm danger" id="disconnectBtn" style="display:none" onclick="toggleConnect()">Disconnect</button>
     </div>
-    <button class="btn-sm" onclick="location.href='/login'" style="width:100%;margin-top:6px">Sign Out</button>
+    <button class="btn-sm signout" onclick="location.href='/login'">Sign Out</button>
   </div>
 </aside>
 
-<!-- ── MAIN ── -->
 <div class="main">
   <div class="topbar">
-    <span class="topbar-title" id="topbarTitle">Presence</span>
+    <span class="topbar-title" id="topbarTitle">Dashboard</span>
   </div>
-
   <div class="content">
 
-    <!-- ════════════ PRESENCE ════════════ -->
-    <div id="sec-presence" class="section active">
-
-      <!-- Connection -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="var(--primary)" stroke="none"/></svg>
-            Connection
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="form-gap">
-            <div class="field">
-              <label>Discord Token</label>
-              <div class="input-row">
-                <input type="password" id="tokenInput" placeholder="Your Discord token" oninput="markDirty()" style="flex:1">
-                <button class="btn btn-ghost" onclick="validateToken()">Validate</button>
-              </div>
-            </div>
-            <div class="field">
-              <label>Status</label>
-              <select id="statusSelect" onchange="markDirty()">
-                <option value="online">🟢 Online</option>
-                <option value="idle">🟡 Idle</option>
-                <option value="dnd">🔴 Do Not Disturb</option>
-                <option value="invisible">⚫ Invisible</option>
-              </select>
-            </div>
-          </div>
-          <div id="tokenValidResult" style="display:flex;align-items:center;justify-content:center;color:var(--text-2);font-size:13px;text-align:center">
-            Click "Validate" to check your token
-          </div>
-        </div>
+<!-- ══════════════════════════════════════════════════════
+     DASHBOARD
+════════════════════════════════════════════════════════ -->
+<div id="sec-dashboard" class="section active">
+  <div class="grid-4" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-val" id="dUptime">—</div><div class="stat-lbl">Uptime</div></div>
+    <div class="stat-card"><div class="stat-val" id="dPing">—</div><div class="stat-lbl">WS Ping</div></div>
+    <div class="stat-card"><div class="stat-val" id="dToday">0</div><div class="stat-lbl">Quests Today</div></div>
+    <div class="stat-card"><div class="stat-val" id="dTotal">0</div><div class="stat-lbl">Total Quests</div></div>
+  </div>
+  <div class="cols">
+    <div class="card" style="flex:1;margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>
+        Active Account
       </div>
-
-      <!-- RPC Editor + Preview -->
-      <div class="cols">
-        <div class="card" style="flex:1.5">
-          <div class="card-header">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-              Rich Presence
-            </div>
-            <div class="toggle" id="rpcToggle" onclick="this.classList.toggle('on');markDirty()"></div>
-          </div>
-          <div class="form-gap">
-            <div class="grid-2">
-              <div class="field">
-                <label>Activity Type</label>
-                <select id="actType" onchange="updatePreview();markDirty()">
-                  <option value="PLAYING">Playing</option>
-                  <option value="STREAMING">Streaming</option>
-                  <option value="LISTENING">Listening</option>
-                  <option value="WATCHING">Watching</option>
-                  <option value="COMPETING">Competing</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Application ID</label>
-                <input type="text" id="appId" placeholder="1234567890" oninput="updatePreview();markDirty()">
-              </div>
-            </div>
-            <div class="field">
-              <label>Name</label>
-              <input type="text" id="rpcName" placeholder="What are you doing?" oninput="updatePreview();markDirty()">
-            </div>
-            <div class="grid-2">
-              <div class="field">
-                <label>Details</label>
-                <input type="text" id="rpcDetails" placeholder="Details line" oninput="updatePreview();markDirty()">
-              </div>
-              <div class="field">
-                <label>State</label>
-                <input type="text" id="rpcState" placeholder="State line" oninput="updatePreview();markDirty()">
-              </div>
-            </div>
-            <div class="field" id="streamUrlField" style="display:none">
-              <label>Stream URL</label>
-              <input type="text" id="streamUrl" placeholder="https://twitch.tv/..." oninput="markDirty()">
-            </div>
-            <div class="grid-2">
-              <div class="field"><label>Large Image</label><input type="text" id="largeImg" placeholder="URL or asset key" oninput="markDirty()"></div>
-              <div class="field"><label>Large Text</label><input type="text" id="largeText" placeholder="Hover text" oninput="markDirty()"></div>
-            </div>
-            <div class="grid-2">
-              <div class="field"><label>Small Image</label><input type="text" id="smallImg" placeholder="URL or asset key" oninput="markDirty()"></div>
-              <div class="field"><label>Small Text</label><input type="text" id="smallText" placeholder="Hover text" oninput="markDirty()"></div>
-            </div>
-            <div class="grid-2">
-              <div class="field"><label>Button 1 Label</label><input type="text" id="btn1text" placeholder="Click here" oninput="markDirty()"></div>
-              <div class="field"><label>Button 1 URL</label><input type="text" id="btn1url" placeholder="https://..." oninput="markDirty()"></div>
-            </div>
-            <div class="grid-2">
-              <div class="field"><label>Button 2 Label</label><input type="text" id="btn2text" placeholder="Click here" oninput="markDirty()"></div>
-              <div class="field"><label>Button 2 URL</label><input type="text" id="btn2url" placeholder="https://..." oninput="markDirty()"></div>
-            </div>
-            <div class="toggle-row">
-              <div class="toggle-info"><div class="toggle-label">Show Elapsed Time</div></div>
-              <div class="toggle" id="elapsedToggle" onclick="this.classList.toggle('on');markDirty()"></div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:14px;min-width:200px;flex:1">
-          <div class="card" style="margin-bottom:0">
-            <div class="card-title" style="margin-bottom:12px">
-              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              Live Preview
-            </div>
-            <div class="rpc-preview">
-              <div class="preview-type" id="prevType">PLAYING</div>
-              <div class="preview-name" id="prevName">Onyx</div>
-              <div class="preview-detail" id="prevDetails" style="display:none"></div>
-              <div class="preview-detail" id="prevState" style="display:none"></div>
-            </div>
-          </div>
-          <div class="card" style="margin-bottom:0">
-            <div class="card-header">
-              <div class="card-title">
-                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                Custom Status
-              </div>
-              <div class="toggle" id="csToggle" onclick="this.classList.toggle('on');markDirty()"></div>
-            </div>
-            <div class="form-gap">
-              <div class="field"><label>Status Text</label><input type="text" id="csText" placeholder="What's happening?" oninput="markDirty()"></div>
-              <div class="field"><label>Emoji</label><input type="text" id="csEmoji" placeholder="😊 or :custom:" oninput="markDirty()"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Presence Rotation -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-            Presence Rotation
-          </div>
-          <div class="toggle" id="rotToggle" onclick="this.classList.toggle('on')"></div>
-        </div>
-        <div class="form-gap">
-          <div class="input-row" style="align-items:flex-end">
-            <div class="field" style="max-width:160px">
-              <label>Interval (minutes)</label>
-              <input type="number" id="rotInterval" value="5" min="1">
-            </div>
-            <button class="btn btn-ghost" onclick="saveSettings()">Apply</button>
-          </div>
-          <div>
-            <div style="font-size:12px;color:var(--text-2);margin-bottom:8px">Add at least 2 presences to rotate through</div>
-            <div class="input-row">
-              <div class="field"><label>Type</label>
-                <select id="rotType">
-                  <option value="PLAYING">Playing</option>
-                  <option value="LISTENING">Listening</option>
-                  <option value="WATCHING">Watching</option>
-                  <option value="COMPETING">Competing</option>
-                </select>
-              </div>
-              <div class="field"><label>Name</label><input type="text" id="rotName" placeholder="e.g. Spotify"></div>
-              <div class="field"><label>App ID (opt)</label><input type="text" id="rotAppId" placeholder="Optional"></div>
-              <button class="btn btn-ghost" style="align-self:flex-end" onclick="addRotEntry()">Add</button>
-            </div>
-            <div class="item-list" id="rotList"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Idle Spoof -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Idle Spoofing
-          </div>
-          <div class="toggle" id="idleToggle" onclick="this.classList.toggle('on')"></div>
-        </div>
-        <div class="input-row" style="align-items:flex-end">
-          <div class="field">
-            <label>Go idle after (minutes of no panel activity)</label>
-            <input type="number" id="idleTimeout" value="10" min="1" max="120">
-          </div>
-          <button class="btn btn-ghost" onclick="saveSettings()">Apply</button>
+      <div class="dash-account">
+        <div class="dash-avatar" id="dashAvatar">?</div>
+        <div>
+          <div class="dash-tag" id="dashTag">Not connected</div>
+          <div class="dash-id" id="dashId"></div>
+          <div style="margin-top:6px" id="dashStateBadge"></div>
         </div>
       </div>
     </div>
-
-    <!-- ════════════ QUESTS ════════════ -->
-    <div id="sec-quests" class="section">
-
-      <div id="questBanner" class="quest-banner" style="display:none">
-        <div class="quest-banner-dot"></div>
-        <span id="questBannerText">Running quest…</span>
+    <div class="card" style="flex:1.6;margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Recent Quest Activity
       </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-            Quest Controls
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-ghost" onclick="fetchQuests()">↻ Refresh</button>
-            <button class="btn btn-primary" onclick="startQuests()">Start All</button>
-            <button class="btn btn-danger" id="stopQuestBtn" style="display:none" onclick="stopQuests()">Stop</button>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="toggle-row">
-            <div class="toggle-info">
-              <div class="toggle-label">Auto-Claim Rewards</div>
-              <div class="toggle-desc">Automatically claim rewards after a quest completes</div>
-            </div>
-            <div class="toggle" id="autoClaimToggle" onclick="this.classList.toggle('on');saveSettings()"></div>
-          </div>
-          <div class="toggle-row">
-            <div class="toggle-info">
-              <div class="toggle-label">Completion Notifications</div>
-              <div class="toggle-desc">Webhook ping when a quest finishes</div>
-            </div>
-            <div class="toggle" id="questNotifToggle" onclick="this.classList.toggle('on');saveSettings()"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" style="margin-bottom:14px">
-          <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-          Available Quests
-        </div>
-        <div id="questList"><div style="color:var(--text-2);font-size:13px;text-align:center;padding:24px 0">Click Refresh to load quests</div></div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Quest History
-          </div>
-          <button class="btn btn-ghost" onclick="clearHistory()">Clear</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Quest</th><th>Status</th><th>Completed</th></tr></thead>
-            <tbody id="historyBody"><tr><td colspan="3" class="dim" style="text-align:center;padding:20px">No history yet</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-            Protocol Logs
-          </div>
-          <button class="btn btn-ghost" onclick="clearLogs()">Clear</button>
-        </div>
-        <div class="terminal" id="logTerminal"></div>
+      <div id="dashRecentHistory">
+        <div style="color:var(--text-2);font-size:13px;text-align:center;padding:16px 0">No activity yet</div>
       </div>
     </div>
-
-    <!-- ════════════ AUTOMATION ════════════ -->
-    <div id="sec-automation" class="section">
-      <div class="grid-2">
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-              AFK Responder
-            </div>
-            <div class="toggle" id="afkToggle" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="form-gap">
-            <div class="field"><label>AFK Message</label><textarea id="afkMsg" placeholder="I'm AFK right now…"></textarea></div>
-            <div class="field"><label>Cooldown per user (minutes)</label><input type="number" id="afkCooldown" value="5" min="0"></div>
-            <button class="btn btn-primary btn-full" onclick="saveAutoFeatures()">Save</button>
-          </div>
+  </div>
+  <div class="grid-2" style="margin-top:12px">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Quick Actions
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="showSectionById('quests');fetchQuests()">Open Quests</button>
+        <button class="btn btn-ghost" onclick="showSectionById('presence')">Edit Presence</button>
+        <button class="btn btn-ghost" onclick="showSectionById('dms');loadDMs()">DM Inbox</button>
+        <button class="btn btn-ghost" onclick="showSectionById('servers');loadServers()">Servers</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        System Status
+      </div>
+      <div class="form-gap" style="gap:8px">
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:var(--text-2)">Discord</span>
+          <span id="sysDiscord" class="badge badge-gray">—</span>
         </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-              Keyword Alerts
-            </div>
-            <div class="toggle" id="kwToggle" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Posts a webhook when these words appear in any message</div>
-          <div class="input-row" style="margin-bottom:0">
-            <input type="text" id="kwInput" placeholder="Keyword to watch" style="flex:1" onkeydown="if(event.key==='Enter')addKeyword()">
-            <button class="btn btn-ghost" onclick="addKeyword()">Add</button>
-          </div>
-          <div class="item-list" id="kwList"></div>
-          <button class="btn btn-primary btn-full" style="margin-top:12px" onclick="saveAutoFeatures()">Save</button>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:var(--text-2)">Rotation</span>
+          <span id="sysRotation" class="badge badge-gray">Off</span>
         </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
-              Auto React
-            </div>
-            <div class="toggle" id="reactToggle" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">React with an emoji when a keyword is mentioned</div>
-          <div class="input-row" style="margin-bottom:0">
-            <input type="text" id="reactKw" placeholder="Keyword" style="flex:1.5">
-            <input type="text" id="reactEmoji" placeholder="😊" style="flex:0.8">
-            <button class="btn btn-ghost" onclick="addReactTrigger()">Add</button>
-          </div>
-          <div class="item-list" id="reactList"></div>
-          <button class="btn btn-primary btn-full" style="margin-top:12px" onclick="saveAutoFeatures()">Save</button>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:var(--text-2)">Idle Spoof</span>
+          <span id="sysIdle" class="badge badge-gray">Off</span>
         </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>
-              Auto Reply
-            </div>
-            <div class="toggle" id="replyToggle" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="field" style="margin-bottom:10px">
-            <label>Per-user cooldown (minutes, 0 = off)</label>
-            <input type="number" id="replyCooldown" value="0" min="0">
-          </div>
-          <div style="font-size:12px;color:var(--text-2);margin-bottom:8px">Rules trigger on DMs and mentions only</div>
-          <div class="input-row" style="margin-bottom:0">
-            <input type="text" id="replyMatch" placeholder="Match phrase" style="flex:1">
-            <input type="text" id="replyText" placeholder="Reply with" style="flex:1">
-            <button class="btn btn-ghost" onclick="addReplyRule()">Add</button>
-          </div>
-          <div class="item-list" id="replyList"></div>
-          <button class="btn btn-primary btn-full" style="margin-top:12px" onclick="saveAutoFeatures()">Save</button>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:var(--text-2)">Auto-Claim</span>
+          <span id="sysAutoClaim" class="badge badge-gray">Off</span>
         </div>
       </div>
     </div>
-
-    <!-- ════════════ MESSAGES ════════════ -->
-    <div id="sec-messages" class="section">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title" style="margin-bottom:14px">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Scheduled (One-time)
-          </div>
-          <div class="form-gap" style="margin-bottom:12px">
-            <div class="field"><label>Target (Channel/User ID)</label><input type="text" id="schTarget" placeholder="ID"></div>
-            <div class="field"><label>Send At</label><input type="datetime-local" id="schTime"></div>
-            <div class="field"><label>Message</label><textarea id="schMsg" placeholder="Your message"></textarea></div>
-            <button class="btn btn-primary btn-full" onclick="addScheduled()">Schedule</button>
-          </div>
-          <div class="item-list" id="scheduledList"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title" style="margin-bottom:14px">
-            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-            Recurring
-          </div>
-          <div class="form-gap" style="margin-bottom:12px">
-            <div class="field"><label>Target (Channel/User ID)</label><input type="text" id="recTarget" placeholder="ID"></div>
-            <div class="input-row">
-              <div class="field"><label>Every</label><input type="number" id="recInterval" placeholder="30" min="1"></div>
-              <div class="field"><label>Unit</label>
-                <select id="recUnit"><option value="minute">Minutes</option><option value="hour">Hours</option><option value="day">Days</option></select>
-              </div>
-            </div>
-            <div class="field"><label>Message</label><textarea id="recMsg" placeholder="Your message"></textarea></div>
-            <button class="btn btn-primary btn-full" onclick="addRecurring()">Add Recurring</button>
-          </div>
-          <div class="item-list" id="recurringList"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════ UTILITY ════════════ -->
-    <div id="sec-utility" class="section">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title" style="margin-bottom:14px">
-            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            Purge Messages
-          </div>
-          <div class="form-gap">
-            <div class="field"><label>Channel ID</label><input type="text" id="purgeChannel" placeholder="Channel ID"></div>
-            <div class="field"><label>Count (max 100)</label><input type="number" id="purgeCount" value="10" min="1" max="100"></div>
-            <button class="btn btn-danger btn-full" onclick="purgeMessages()">Purge My Messages</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title" style="margin-bottom:14px">
-            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Quick Send
-          </div>
-          <div class="form-gap">
-            <div class="field"><label>Target (Channel/User ID)</label><input type="text" id="sendTarget" placeholder="ID"></div>
-            <div class="field"><label>Message</label><textarea id="sendMsg" placeholder="Your message"></textarea></div>
-            <button class="btn btn-primary btn-full" onclick="sendMessage()">Send</button>
-          </div>
-        </div>
-
-        <div class="card" style="grid-column:1/-1">
-          <div class="card-title" style="margin-bottom:14px">
-            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-            Mass DM
-          </div>
-          <div class="form-gap">
-            <div class="grid-2">
-              <div class="field"><label>User IDs (one per line)</label><textarea id="massIds" placeholder="123456789&#10;987654321" style="min-height:90px"></textarea></div>
-              <div class="form-gap">
-                <div class="field"><label>Message</label><textarea id="massMsg" placeholder="Your message"></textarea></div>
-                <div class="field"><label>Delay between DMs (ms)</label><input type="number" id="massDelay" value="1500" min="1000"></div>
-                <button class="btn btn-primary btn-full" onclick="massDm()">Send Mass DM</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════ SETTINGS ════════════ -->
-    <div id="sec-settings" class="section">
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-val">1.5.0</div>
-          <div class="stat-lbl">Version</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-val" id="totalQuestsCompleted">—</div>
-          <div class="stat-lbl">Quests Completed</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-val" id="aboutStatus">—</div>
-          <div class="stat-lbl">Connection</div>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title" style="margin-bottom:14px">
-            <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-            Webhook Notifications
-          </div>
-          <div class="form-gap">
-            <div class="field">
-              <label>Discord Webhook URL</label>
-              <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
-            </div>
-            <div style="font-size:12px;color:var(--text-2)">Used for quest completion pings and keyword mention alerts</div>
-            <button class="btn btn-primary btn-full" onclick="saveSettings()">Save Webhook</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title" style="margin-bottom:14px">
-            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            Security
-          </div>
-          <div class="form-gap">
-            <div class="field"><label>New Panel Password</label><input type="password" id="newPw" placeholder="Leave blank to keep current"></div>
-            <div class="field"><label>Confirm Password</label><input type="password" id="confirmPw" placeholder="Confirm new password"></div>
-            <button class="btn btn-ghost btn-full" onclick="changePassword()">Update Password</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
-<!-- ── SAVE BAR ── -->
-<div id="saveBar">
-  <span class="save-msg">Unsaved changes</span>
-  <button class="btn btn-ghost" onclick="loadConfig()">Discard</button>
-  <button class="btn btn-primary" onclick="saveConfig()">Save Changes</button>
+<!-- ══════════════════════════════════════════════════════
+     PRESENCE
+════════════════════════════════════════════════════════ -->
+<div id="sec-presence" class="section">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="var(--primary)" stroke="none"/></svg>Connection</div>
+    </div>
+    <div class="grid-2">
+      <div class="form-gap">
+        <div class="field">
+          <label>Discord Token</label>
+          <div class="input-row">
+            <input type="password" id="tokenInput" placeholder="Your Discord token" oninput="markDirty()" style="flex:1">
+            <button class="btn btn-ghost" onclick="validateToken()">Validate</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="statusSelect" onchange="markDirty()">
+            <option value="online">🟢 Online</option><option value="idle">🟡 Idle</option>
+            <option value="dnd">🔴 Do Not Disturb</option><option value="invisible">⚫ Invisible</option>
+          </select>
+        </div>
+      </div>
+      <div id="tokenValidResult" style="display:flex;align-items:center;justify-content:center;color:var(--text-2);font-size:13px;text-align:center">Click "Validate" to check your token</div>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="card" style="flex:1.5">
+      <div class="card-header">
+        <div class="card-title"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Rich Presence</div>
+        <div class="toggle" id="rpcToggle" onclick="this.classList.toggle('on');markDirty()"></div>
+      </div>
+      <div class="form-gap">
+        <div class="grid-2">
+          <div class="field"><label>Activity Type</label><select id="actType" onchange="updatePreview();markDirty()"><option value="PLAYING">Playing</option><option value="STREAMING">Streaming</option><option value="LISTENING">Listening</option><option value="WATCHING">Watching</option><option value="COMPETING">Competing</option></select></div>
+          <div class="field"><label>Application ID</label><input type="text" id="appId" placeholder="1234567890" oninput="updatePreview();markDirty()"></div>
+        </div>
+        <div class="field"><label>Name</label><input type="text" id="rpcName" placeholder="What are you doing?" oninput="updatePreview();markDirty()"></div>
+        <div class="grid-2">
+          <div class="field"><label>Details</label><input type="text" id="rpcDetails" placeholder="Details line" oninput="updatePreview();markDirty()"></div>
+          <div class="field"><label>State</label><input type="text" id="rpcState" placeholder="State line" oninput="updatePreview();markDirty()"></div>
+        </div>
+        <div class="field" id="streamUrlField" style="display:none"><label>Stream URL</label><input type="text" id="streamUrl" placeholder="https://twitch.tv/..." oninput="markDirty()"></div>
+        <div class="grid-2">
+          <div class="field"><label>Large Image</label><input type="text" id="largeImg" placeholder="URL or asset" oninput="markDirty()"></div>
+          <div class="field"><label>Large Text</label><input type="text" id="largeText" placeholder="Hover text" oninput="markDirty()"></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>Small Image</label><input type="text" id="smallImg" placeholder="URL or asset" oninput="markDirty()"></div>
+          <div class="field"><label>Small Text</label><input type="text" id="smallText" placeholder="Hover text" oninput="markDirty()"></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>Button 1 Label</label><input type="text" id="btn1text" placeholder="Click here" oninput="markDirty()"></div>
+          <div class="field"><label>Button 1 URL</label><input type="text" id="btn1url" placeholder="https://..." oninput="markDirty()"></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>Button 2 Label</label><input type="text" id="btn2text" placeholder="Click here" oninput="markDirty()"></div>
+          <div class="field"><label>Button 2 URL</label><input type="text" id="btn2url" placeholder="https://..." oninput="markDirty()"></div>
+        </div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Show Elapsed Time</div></div><div class="toggle" id="elapsedToggle" onclick="this.classList.toggle('on');markDirty()"></div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:195px;flex:1">
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Live Preview</div>
+        <div class="rpc-preview"><div class="preview-type" id="prevType">PLAYING</div><div class="preview-name" id="prevName">Onyx</div><div class="preview-detail" id="prevDetails" style="display:none"></div><div class="preview-detail" id="prevState" style="display:none"></div></div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-header">
+          <div class="card-title"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Custom Status</div>
+          <div class="toggle" id="csToggle" onclick="this.classList.toggle('on');markDirty()"></div>
+        </div>
+        <div class="form-gap">
+          <div class="field"><label>Status Text</label><input type="text" id="csText" placeholder="What's happening?" oninput="markDirty()"></div>
+          <div class="field"><label>Emoji</label><input type="text" id="csEmoji" placeholder="😊 or :custom:" oninput="markDirty()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>Presence Rotation</div>
+      <div class="toggle" id="rotToggle" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="form-gap">
+      <div class="input-row" style="align-items:flex-end">
+        <div class="field" style="max-width:150px"><label>Interval (min)</label><input type="number" id="rotInterval" value="5" min="1"></div>
+        <button class="btn btn-ghost" onclick="saveSettings()">Apply</button>
+      </div>
+      <div class="input-row">
+        <div class="field"><label>Type</label><select id="rotType"><option value="PLAYING">Playing</option><option value="LISTENING">Listening</option><option value="WATCHING">Watching</option><option value="COMPETING">Competing</option></select></div>
+        <div class="field"><label>Name</label><input type="text" id="rotName" placeholder="e.g. Spotify"></div>
+        <div class="field"><label>App ID (opt)</label><input type="text" id="rotAppId" placeholder="Optional"></div>
+        <button class="btn btn-ghost" style="align-self:flex-end" onclick="addRotEntry()">Add</button>
+      </div>
+      <div class="item-list" id="rotList"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Idle Spoofing</div>
+      <div class="toggle" id="idleToggle" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="input-row" style="align-items:flex-end">
+      <div class="field"><label>Go idle after (minutes of no activity)</label><input type="number" id="idleTimeout" value="10" min="1" max="120"></div>
+      <button class="btn btn-ghost" onclick="saveSettings()">Apply</button>
+    </div>
+  </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════
+     QUESTS
+════════════════════════════════════════════════════════ -->
+<div id="sec-quests" class="section">
+  <div id="questBanner" class="quest-banner" style="display:none"><div class="quest-banner-dot"></div><span id="questBannerText">Running…</span></div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Quest Controls</div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-ghost" onclick="fetchQuests()">↻ Refresh</button>
+        <button class="btn btn-primary" onclick="startQuests()">Start All</button>
+        <button class="btn btn-danger" id="stopQuestBtn" style="display:none" onclick="stopQuests()">Stop</button>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Auto-Claim Rewards</div><div class="toggle-desc">Claim rewards automatically on completion</div></div><div class="toggle" id="autoClaimToggle" onclick="this.classList.toggle('on');saveSettings()"></div></div>
+      <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Completion Notifications</div><div class="toggle-desc">Webhook ping when a quest finishes</div></div><div class="toggle" id="questNotifToggle" onclick="this.classList.toggle('on');saveSettings()"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Available Quests</div>
+    <div id="questList"><div style="color:var(--text-2);font-size:13px;text-align:center;padding:22px 0">Click Refresh to load quests</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Quest History</div><button class="btn btn-ghost" onclick="clearHistory()">Clear</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Quest</th><th>Status</th><th>Completed</th></tr></thead><tbody id="historyBody"><tr><td colspan="3" class="dim" style="text-align:center;padding:18px">No history yet</td></tr></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Protocol Logs</div><button class="btn btn-ghost" onclick="clearLogs()">Clear</button></div>
+    <div class="terminal" id="logTerminal"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     AUTOMATION
+════════════════════════════════════════════════════════ -->
+<div id="sec-automation" class="section">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>AFK Responder</div><div class="toggle" id="afkToggle" onclick="this.classList.toggle('on')"></div></div>
+      <div class="form-gap">
+        <div class="field"><label>AFK Message</label><textarea id="afkMsg" placeholder="I'm AFK right now…"></textarea></div>
+        <div class="field"><label>Per-user cooldown (minutes)</label><input type="number" id="afkCooldown" value="5" min="0"></div>
+        <button class="btn btn-primary btn-full" onclick="saveAutoFeatures()">Save</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Keyword Alerts</div><div class="toggle" id="kwToggle" onclick="this.classList.toggle('on')"></div></div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:8px">Webhook ping when these words appear in any message</div>
+      <div class="input-row" style="margin-bottom:0"><input type="text" id="kwInput" placeholder="Keyword" style="flex:1" onkeydown="if(event.key==='Enter')addKeyword()"><button class="btn btn-ghost" onclick="addKeyword()">Add</button></div>
+      <div class="item-list" id="kwList"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:10px" onclick="saveAutoFeatures()">Save</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>Auto React</div><div class="toggle" id="reactToggle" onclick="this.classList.toggle('on')"></div></div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:8px">React with an emoji when a keyword is mentioned</div>
+      <div class="input-row" style="margin-bottom:0"><input type="text" id="reactKw" placeholder="Keyword" style="flex:1.5"><input type="text" id="reactEmoji" placeholder="😊" style="flex:.8"><button class="btn btn-ghost" onclick="addReactTrigger()">Add</button></div>
+      <div class="item-list" id="reactList"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:10px" onclick="saveAutoFeatures()">Save</button>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>Auto Reply</div><div class="toggle" id="replyToggle" onclick="this.classList.toggle('on')"></div></div>
+      <div class="field" style="margin-bottom:8px"><label>Per-user cooldown (min, 0=off)</label><input type="number" id="replyCooldown" value="0" min="0"></div>
+      <div class="input-row" style="margin-bottom:0"><input type="text" id="replyMatch" placeholder="Match phrase" style="flex:1"><input type="text" id="replyText" placeholder="Reply with" style="flex:1"><button class="btn btn-ghost" onclick="addReplyRule()">Add</button></div>
+      <div class="item-list" id="replyList"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:10px" onclick="saveAutoFeatures()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MESSAGES
+════════════════════════════════════════════════════════ -->
+<div id="sec-messages" class="section">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Scheduled (One-time)</div>
+      <div class="form-gap" style="margin-bottom:10px">
+        <div class="field"><label>Target (Channel/User ID)</label><input type="text" id="schTarget" placeholder="ID"></div>
+        <div class="field"><label>Send At</label><input type="datetime-local" id="schTime"></div>
+        <div class="field"><label>Message</label><textarea id="schMsg" placeholder="Your message"></textarea></div>
+        <button class="btn btn-primary btn-full" onclick="addScheduled()">Schedule</button>
+      </div>
+      <div class="item-list" id="scheduledList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>Recurring</div>
+      <div class="form-gap" style="margin-bottom:10px">
+        <div class="field"><label>Target (Channel/User ID)</label><input type="text" id="recTarget" placeholder="ID"></div>
+        <div class="input-row"><div class="field"><label>Every</label><input type="number" id="recInterval" placeholder="30" min="1"></div><div class="field"><label>Unit</label><select id="recUnit"><option value="minute">Minutes</option><option value="hour">Hours</option><option value="day">Days</option></select></div></div>
+        <div class="field"><label>Message</label><textarea id="recMsg" placeholder="Your message"></textarea></div>
+        <button class="btn btn-primary btn-full" onclick="addRecurring()">Add Recurring</button>
+      </div>
+      <div class="item-list" id="recurringList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     UTILITY
+════════════════════════════════════════════════════════ -->
+<div id="sec-utility" class="section">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>Purge Messages</div>
+      <div class="form-gap"><div class="field"><label>Channel ID</label><input type="text" id="purgeChannel" placeholder="Channel ID"></div><div class="field"><label>Count (max 100)</label><input type="number" id="purgeCount" value="10" min="1" max="100"></div><button class="btn btn-danger btn-full" onclick="purgeMessages()">Purge My Messages</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Quick Send</div>
+      <div class="form-gap"><div class="field"><label>Target ID</label><input type="text" id="sendTarget" placeholder="Channel or User ID"></div><div class="field"><label>Message</label><textarea id="sendMsg" placeholder="Your message"></textarea></div><button class="btn btn-primary btn-full" onclick="sendMessage()">Send</button></div>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Mass DM</div>
+      <div class="grid-2"><div class="field"><label>User IDs (one per line)</label><textarea id="massIds" placeholder="123456789&#10;987654321" style="min-height:90px"></textarea></div><div class="form-gap"><div class="field"><label>Message</label><textarea id="massMsg" placeholder="Your message"></textarea></div><div class="field"><label>Delay between DMs (ms)</label><input type="number" id="massDelay" value="1500" min="1000"></div><button class="btn btn-primary btn-full" onclick="massDm()">Send Mass DM</button></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     DM INBOX
+════════════════════════════════════════════════════════ -->
+<div id="sec-dms" class="section">
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="dm-layout" style="height:600px">
+      <div style="width:240px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
+        <div style="padding:11px 12px;border-bottom:1px solid var(--border);display:flex;gap:7px">
+          <input type="text" id="dmSearch" placeholder="Search DMs…" oninput="filterDMs()" style="flex:1;padding:6px 9px">
+          <button class="btn btn-ghost" onclick="loadDMs()" style="padding:6px 10px">↻</button>
+        </div>
+        <div class="dm-list" id="dmList" style="flex:1;padding:6px">
+          <div style="color:var(--text-2);font-size:13px;text-align:center;padding:20px 0">Click ↻ to load DMs</div>
+        </div>
+      </div>
+      <div class="dm-chat">
+        <div id="dmChatHeader" style="padding:11px 14px;border-bottom:1px solid var(--border);font-weight:600;font-size:13.5px;color:var(--text-2)">Select a conversation</div>
+        <div class="dm-messages" id="dmMessages"><div class="dm-empty">Select a DM to view messages</div></div>
+        <div class="dm-input-bar" id="dmInputBar" style="display:none">
+          <input type="text" id="dmReplyInput" placeholder="Message…" onkeydown="if(event.key==='Enter')sendDMReply()">
+          <button class="btn btn-primary" onclick="sendDMReply()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SERVERS
+════════════════════════════════════════════════════════ -->
+<div id="sec-servers" class="section">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>Server Browser</div>
+      <div style="display:flex;gap:7px;align-items:center">
+        <span id="serverCount" style="font-size:12px;color:var(--text-2)"></span>
+        <button class="btn btn-ghost" onclick="loadServers()">↻ Refresh</button>
+      </div>
+    </div>
+    <input type="text" id="serverSearch" placeholder="Search servers…" oninput="filterServers()" style="margin-bottom:12px">
+    <div id="serverGrid" class="server-grid"><div style="color:var(--text-2);font-size:13px;text-align:center;padding:22px 0;grid-column:1/-1">Click Refresh to load servers</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ACCOUNTS
+════════════════════════════════════════════════════════ -->
+<div id="sec-accounts" class="section">
+  <div class="cols">
+    <div class="card" style="flex:1;margin-bottom:0">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Add Account</div>
+      <div class="form-gap">
+        <div class="field"><label>Nickname</label><input type="text" id="accNickname" placeholder="e.g. Main Account"></div>
+        <div class="field"><label>Discord Token</label><input type="password" id="accToken" placeholder="Token"></div>
+        <button class="btn btn-primary btn-full" onclick="addAccount()">Save Account</button>
+      </div>
+    </div>
+    <div style="flex:2">
+      <div class="card-title" style="margin-bottom:10px;padding:0 2px"><svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--primary);fill:none;stroke-width:2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg> Saved Accounts</div>
+      <div id="accountList" style="display:flex;flex-direction:column;gap:8px">
+        <div style="color:var(--text-2);font-size:13px;text-align:center;padding:22px 0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg)">No accounts saved yet</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SETTINGS
+════════════════════════════════════════════════════════ -->
+<div id="sec-settings" class="section">
+  <div class="grid-4" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-val">1.6.0</div><div class="stat-lbl">Version</div></div>
+    <div class="stat-card"><div class="stat-val" id="setQuestsTotal">—</div><div class="stat-lbl">Total Completed</div></div>
+    <div class="stat-card"><div class="stat-val" id="setStatus">—</div><div class="stat-lbl">Connection</div></div>
+    <div class="stat-card"><div class="stat-val" id="setAccounts">—</div><div class="stat-lbl">Accounts</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Webhook Notifications</div>
+      <div class="form-gap">
+        <div class="field"><label>Discord Webhook URL</label><input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..."></div>
+        <div style="font-size:12px;color:var(--text-2)">Used for quest completions and keyword alerts</div>
+        <button class="btn btn-primary btn-full" onclick="saveSettings()">Save Webhook</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Security</div>
+      <div class="form-gap">
+        <div class="field"><label>New Panel Password</label><input type="password" id="newPw" placeholder="Leave blank to keep current"></div>
+        <div class="field"><label>Confirm Password</label><input type="password" id="confirmPw" placeholder="Confirm new password"></div>
+        <button class="btn btn-ghost btn-full" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Backup & Restore</div>
+      <div class="form-gap">
+        <div style="font-size:12.5px;color:var(--text-2)">Export all config, settings, automation rules, and quest history to a JSON file.</div>
+        <button class="btn btn-ghost btn-full" onclick="downloadBackup()">⬇ Export Backup</button>
+        <div style="height:1px;background:var(--border)"></div>
+        <div style="font-size:12.5px;color:var(--text-2)">Restore config and settings from a previously exported backup file.</div>
+        <label class="btn btn-ghost btn-full" style="cursor:pointer;justify-content:center">
+          ⬆ Import Backup
+          <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="handleRestoreFile(this)">
+        </label>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>About Onyx</div>
+      <div style="font-size:13px;color:var(--text-2);line-height:1.8">
+        <div>Version <strong style="color:var(--text)">1.6.0</strong></div>
+        <div>Discord selfbot presence + quest automation panel</div>
+        <div style="margin-top:8px;font-size:11.5px;color:var(--text-3)">All features run locally on your machine.<br>Keep your token private.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<div id="saveBar"><span class="save-msg">Unsaved changes</span><button class="btn btn-ghost" onclick="loadConfig()">Discard</button><button class="btn btn-primary" onclick="saveConfig()">Save</button></div>
 <div id="toasts"></div>
 
 <script>
-// ── State ──────────────────────────────────────────────────────────────────
-let cfg = {};
-let settings = {};
-let autoFeaturesCfg = {};
-let isDirty = false;
-let questPollTimer = null;
+let cfg={}, settings={}, autoFeaturesCfg={}, isDirty=false, questPollTimer=null;
+let allDMs=[], allServers=[], activeDMChannel=null;
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-function toast(msg, type = 'info') {
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
-  document.getElementById('toasts').appendChild(el);
-  setTimeout(() => el.remove(), 3200);
-}
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function toast(msg,type='info'){const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),3200)}
+function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function gv(id){return document.getElementById(id)?.value||''}
+function sv(id,v){const el=document.getElementById(id);if(el)el.value=v}
+function on(id){return document.getElementById(id)?.classList.contains('on')||false}
+function st(id,val){const el=document.getElementById(id);if(el)el.classList.toggle('on',!!val)}
+function initials(name){return (name||'?').slice(0,2).toUpperCase()}
+function fmtUptime(ms){if(!ms)return'—';const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60),d=Math.floor(h/24);return d?`${d}d ${h%24}h`:h?`${h}h ${m%60}m`:`${m}m`}
 
-function showSection(el) {
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+function showSection(el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
-  const sec = el.dataset.sec;
-  document.getElementById('sec-' + sec).classList.add('active');
-  document.getElementById('topbarTitle').textContent = el.querySelector('span')?.textContent || sec;
-  if (sec === 'quests') { fetchQuests(); loadQuestHistory(); }
-  if (sec === 'messages') loadMessages();
-  if (sec === 'automation') loadAutoFeatures();
-  if (sec === 'settings') loadQuestHistory();
+  const sec=el.dataset.sec;
+  document.getElementById('sec-'+sec).classList.add('active');
+  document.getElementById('topbarTitle').textContent=el.querySelector('span')?.textContent||sec;
+  if(sec==='quests'){fetchQuests();loadQuestHistory()}
+  if(sec==='messages')loadMessages()
+  if(sec==='automation')loadAutoFeatures()
+  if(sec==='dms')loadDMs()
+  if(sec==='servers')loadServers()
+  if(sec==='accounts')loadAccounts()
+  if(sec==='settings'){loadQuestHistory();loadAccountsForSettings()}
+  if(sec==='dashboard')loadDashboard()
 }
 
-async function init() {
-  await Promise.all([loadConfig(), loadSettingsData(), pollStatus()]);
-  loadQuestHistory();
-  setInterval(pollStatus, 5000);
+function showSectionById(id){
+  const el=document.querySelector(`[data-sec="${id}"]`);
+  if(el)showSection(el)
 }
 
-// ── Config ─────────────────────────────────────────────────────────────────
-async function loadConfig() {
-  try {
-    const r = await fetch('/api/config');
-    const d = await r.json();
-    cfg = d.config || {};
-    applyConfigToForm(cfg);
-    isDirty = false;
-    document.getElementById('saveBar').classList.remove('visible');
-  } catch { toast('Failed to load config', 'err'); }
+// ── Init ────────────────────────────────────────────────────────────────────
+async function init(){
+  await Promise.all([loadConfig(),loadSettingsData(),pollStatus()]);
+  loadDashboard();
+  setInterval(pollStatus,5000);
+  setInterval(loadDashboard,15000);
 }
 
-function applyConfigToForm(c) {
-  sv('tokenInput', c.token === 'PASTE_YOUR_TOKEN_HERE' ? '' : (c.token || ''));
-  sv('statusSelect', c.status || 'online');
-  st('rpcToggle', c.rpc?.enabled !== false);
-  sv('actType', c.rpc?.type || 'PLAYING');
-  sv('rpcName', c.rpc?.name || '');
-  sv('appId', c.rpc?.application_id || '');
-  sv('rpcDetails', c.rpc?.details || '');
-  sv('rpcState', c.rpc?.state || '');
-  sv('streamUrl', c.rpc?.stream_url || '');
-  sv('largeImg', c.rpc?.large_image || '');
-  sv('largeText', c.rpc?.large_text || '');
-  sv('smallImg', c.rpc?.small_image || '');
-  sv('smallText', c.rpc?.small_text || '');
-  sv('btn1text', c.rpc?.button1_text || '');
-  sv('btn1url', c.rpc?.button1_url || '');
-  sv('btn2text', c.rpc?.button2_text || '');
-  sv('btn2url', c.rpc?.button2_url || '');
-  st('elapsedToggle', !!c.rpc?.show_elapsed);
-  st('csToggle', !!c.custom_status?.enabled);
-  sv('csText', c.custom_status?.text || '');
-  sv('csEmoji', c.custom_status?.emoji || '');
-  document.getElementById('streamUrlField').style.display = (c.rpc?.type === 'STREAMING') ? '' : 'none';
-  updatePreview();
+// ── Config ──────────────────────────────────────────────────────────────────
+async function loadConfig(){
+  try{const r=await fetch('/api/config');const d=await r.json();cfg=d.config||{};applyConfigToForm(cfg);isDirty=false;document.getElementById('saveBar').classList.remove('visible')}
+  catch{toast('Failed to load config','err')}
 }
 
-async function saveConfig() {
-  const payload = {
-    token: gv('tokenInput') || cfg.token,
-    status: gv('statusSelect'),
-    rpc: {
-      enabled: on('rpcToggle'),
-      type: gv('actType'),
-      name: gv('rpcName'),
-      application_id: gv('appId'),
-      details: gv('rpcDetails'),
-      state: gv('rpcState'),
-      stream_url: gv('streamUrl'),
-      large_image: gv('largeImg'),
-      large_text: gv('largeText'),
-      small_image: gv('smallImg'),
-      small_text: gv('smallText'),
-      button1_text: gv('btn1text'),
-      button1_url: gv('btn1url'),
-      button2_text: gv('btn2text'),
-      button2_url: gv('btn2url'),
-      show_elapsed: on('elapsedToggle'),
-    },
-    custom_status: { enabled: on('csToggle'), text: gv('csText'), emoji: gv('csEmoji') }
-  };
-  try {
-    const r = await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    const d = await r.json();
-    if (d.success) { cfg = { ...cfg, ...payload }; isDirty = false; document.getElementById('saveBar').classList.remove('visible'); toast('Saved!', 'ok'); }
-    else toast(d.error || 'Save failed', 'err');
-  } catch { toast('Save failed', 'err'); }
+function applyConfigToForm(c){
+  sv('tokenInput',c.token==='PASTE_YOUR_TOKEN_HERE'?'':(c.token||''));
+  sv('statusSelect',c.status||'online');
+  st('rpcToggle',c.rpc?.enabled!==false);
+  sv('actType',c.rpc?.type||'PLAYING');sv('rpcName',c.rpc?.name||'');sv('appId',c.rpc?.application_id||'');
+  sv('rpcDetails',c.rpc?.details||'');sv('rpcState',c.rpc?.state||'');sv('streamUrl',c.rpc?.stream_url||'');
+  sv('largeImg',c.rpc?.large_image||'');sv('largeText',c.rpc?.large_text||'');
+  sv('smallImg',c.rpc?.small_image||'');sv('smallText',c.rpc?.small_text||'');
+  sv('btn1text',c.rpc?.button1_text||'');sv('btn1url',c.rpc?.button1_url||'');
+  sv('btn2text',c.rpc?.button2_text||'');sv('btn2url',c.rpc?.button2_url||'');
+  st('elapsedToggle',!!c.rpc?.show_elapsed);
+  st('csToggle',!!c.custom_status?.enabled);sv('csText',c.custom_status?.text||'');sv('csEmoji',c.custom_status?.emoji||'');
+  document.getElementById('streamUrlField').style.display=(c.rpc?.type==='STREAMING')?'':'none';
+  updatePreview()
 }
 
-// ── Settings ───────────────────────────────────────────────────────────────
-async function loadSettingsData() {
-  try {
-    const r = await fetch('/api/settings');
-    const d = await r.json();
-    settings = d.settings || {};
-    applySettings(settings);
-  } catch {}
+async function saveConfig(){
+  const payload={token:gv('tokenInput')||cfg.token,status:gv('statusSelect'),rpc:{enabled:on('rpcToggle'),type:gv('actType'),name:gv('rpcName'),application_id:gv('appId'),details:gv('rpcDetails'),state:gv('rpcState'),stream_url:gv('streamUrl'),large_image:gv('largeImg'),large_text:gv('largeText'),small_image:gv('smallImg'),small_text:gv('smallText'),button1_text:gv('btn1text'),button1_url:gv('btn1url'),button2_text:gv('btn2text'),button2_url:gv('btn2url'),show_elapsed:on('elapsedToggle')},custom_status:{enabled:on('csToggle'),text:gv('csText'),emoji:gv('csEmoji')}};
+  try{const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();if(d.success){cfg={...cfg,...payload};isDirty=false;document.getElementById('saveBar').classList.remove('visible');toast('Saved!','ok')}else toast(d.error||'Failed','err')}
+  catch{toast('Save failed','err')}
 }
 
-function applySettings(s) {
-  sv('webhookUrl', s.webhookUrl || '');
-  st('autoClaimToggle', !!s.autoClaimQuests);
-  st('questNotifToggle', !!s.questNotifications);
-  st('rotToggle', !!s.presenceRotation?.enabled);
-  sv('rotInterval', s.presenceRotation?.intervalMinutes || 5);
-  renderRotList(s.presenceRotation?.presences || []);
-  st('idleToggle', !!s.idleSpoof?.enabled);
-  sv('idleTimeout', s.idleSpoof?.timeoutMinutes || 10);
-  st('kwToggle', !!s.keywordAlerts?.enabled);
-  renderKwList(s.keywordAlerts?.keywords || []);
+// ── Settings ─────────────────────────────────────────────────────────────────
+async function loadSettingsData(){
+  try{const r=await fetch('/api/settings');const d=await r.json();settings=d.settings||{};applySettings(settings)}catch{}
 }
 
-async function saveSettings() {
-  const updated = {
-    ...settings,
-    webhookUrl: gv('webhookUrl'),
-    autoClaimQuests: on('autoClaimToggle'),
-    questNotifications: on('questNotifToggle'),
-    presenceRotation: { enabled: on('rotToggle'), intervalMinutes: parseInt(gv('rotInterval')) || 5, presences: settings.presenceRotation?.presences || [] },
-    idleSpoof: { enabled: on('idleToggle'), timeoutMinutes: parseInt(gv('idleTimeout')) || 10 },
-    keywordAlerts: { enabled: on('kwToggle'), keywords: settings.keywordAlerts?.keywords || [] }
-  };
-  try {
-    const r = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-    const d = await r.json();
-    if (d.success) { settings = d.settings; toast('Settings saved', 'ok'); }
-    else toast(d.error || 'Failed', 'err');
-  } catch { toast('Failed', 'err'); }
+function applySettings(s){
+  sv('webhookUrl',s.webhookUrl||'');
+  st('autoClaimToggle',!!s.autoClaimQuests);st('questNotifToggle',!!s.questNotifications);
+  st('rotToggle',!!s.presenceRotation?.enabled);sv('rotInterval',s.presenceRotation?.intervalMinutes||5);
+  renderRotList(s.presenceRotation?.presences||[]);
+  st('idleToggle',!!s.idleSpoof?.enabled);sv('idleTimeout',s.idleSpoof?.timeoutMinutes||10);
+  st('kwToggle',!!s.keywordAlerts?.enabled);renderKwList(s.keywordAlerts?.keywords||[]);
 }
 
-// ── Presence rotation ──────────────────────────────────────────────────────
-function addRotEntry() {
-  const name = gv('rotName').trim();
-  if (!name) { toast('Enter a name', 'err'); return; }
-  if (!settings.presenceRotation) settings.presenceRotation = { enabled: false, intervalMinutes: 5, presences: [] };
-  settings.presenceRotation.presences.push({ type: gv('rotType'), name, application_id: gv('rotAppId') || undefined });
-  renderRotList(settings.presenceRotation.presences);
-  sv('rotName', ''); sv('rotAppId', '');
+async function saveSettings(){
+  const updated={...settings,webhookUrl:gv('webhookUrl'),autoClaimQuests:on('autoClaimToggle'),questNotifications:on('questNotifToggle'),presenceRotation:{enabled:on('rotToggle'),intervalMinutes:parseInt(gv('rotInterval'))||5,presences:settings.presenceRotation?.presences||[]},idleSpoof:{enabled:on('idleToggle'),timeoutMinutes:parseInt(gv('idleTimeout'))||10},keywordAlerts:{enabled:on('kwToggle'),keywords:settings.keywordAlerts?.keywords||[]}};
+  try{const r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(updated)});const d=await r.json();if(d.success){settings=d.settings;toast('Saved','ok')}else toast(d.error||'Failed','err')}catch{toast('Failed','err')}
 }
 
-function removeRotEntry(i) { settings.presenceRotation.presences.splice(i, 1); renderRotList(settings.presenceRotation.presences); }
-
-function renderRotList(list) {
-  document.getElementById('rotList').innerHTML = list.map((p, i) => `
-    <div class="item-row">
-      <span class="im">${e(p.type)}</span><span class="it">${e(p.name)}</span>
-      <button class="icon-btn del" onclick="removeRotEntry(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>`).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No entries</div>`;
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function loadDashboard(){
+  try{
+    const r=await fetch('/api/dashboard');const d=await r.json();
+    document.getElementById('dUptime').textContent=fmtUptime(d.uptimeMs);
+    document.getElementById('dPing').textContent=d.ping!=null?d.ping+'ms':'—';
+    document.getElementById('dToday').textContent=d.questsToday||0;
+    document.getElementById('dTotal').textContent=d.questsTotal||0;
+    // Account card
+    const av=document.getElementById('dashAvatar');
+    if(d.avatar){av.innerHTML=`<img src="${e(d.avatar)}" onerror="this.parentElement.textContent='${initials(d.tag)}'">`}
+    else{av.textContent=initials(d.tag)}
+    document.getElementById('dashTag').textContent=d.tag||'Not connected';
+    document.getElementById('dashId').textContent=d.userId?'ID: '+d.userId:'';
+    const sb=document.getElementById('dashStateBadge');
+    sb.innerHTML=d.state==='connected'?'<span class="badge badge-green">● Connected</span>':d.state==='connecting'?'<span class="badge badge-yellow">● Connecting</span>':'<span class="badge badge-gray">● Disconnected</span>';
+    // System status
+    document.getElementById('sysDiscord').className='badge '+(d.state==='connected'?'badge-green':'badge-gray');
+    document.getElementById('sysDiscord').textContent=d.state==='connected'?'Online':'Offline';
+    document.getElementById('sysRotation').className='badge '+(settings.presenceRotation?.enabled?'badge-cyan':'badge-gray');
+    document.getElementById('sysRotation').textContent=settings.presenceRotation?.enabled?'On':'Off';
+    document.getElementById('sysIdle').className='badge '+(settings.idleSpoof?.enabled?'badge-cyan':'badge-gray');
+    document.getElementById('sysIdle').textContent=settings.idleSpoof?.enabled?'On':'Off';
+    document.getElementById('sysAutoClaim').className='badge '+(settings.autoClaimQuests?'badge-cyan':'badge-gray');
+    document.getElementById('sysAutoClaim').textContent=settings.autoClaimQuests?'On':'Off';
+    // Recent history
+    const rh=document.getElementById('dashRecentHistory');
+    if(d.recentHistory?.length){
+      rh.innerHTML='<div style="display:flex;flex-direction:column;gap:5px">'+d.recentHistory.map(h=>{
+        const dt=new Date(h.completedAt);
+        return`<div class="item-row"><span class="it">${e(h.name)}</span><span class="im">${dt.toLocaleDateString()}</span>${h.success?'<span class="badge badge-green">Done</span>':'<span class="badge badge-red">Failed</span>'}</div>`;
+      }).join('')+'</div>';
+    }else{rh.innerHTML='<div style="color:var(--text-2);font-size:13px;text-align:center;padding:16px 0">No activity yet</div>'}
+  }catch{}
 }
 
-// ── Keyword alerts ─────────────────────────────────────────────────────────
-function addKeyword() {
-  const kw = gv('kwInput').trim(); if (!kw) return;
-  if (!settings.keywordAlerts) settings.keywordAlerts = { enabled: false, keywords: [] };
-  if (!settings.keywordAlerts.keywords) settings.keywordAlerts.keywords = [];
-  settings.keywordAlerts.keywords.push(kw);
-  renderKwList(settings.keywordAlerts.keywords); sv('kwInput', '');
+// ── Status poll ──────────────────────────────────────────────────────────────
+async function pollStatus(){
+  try{
+    const r=await fetch('/api/status');const d=await r.json();
+    document.getElementById('footDot').className='dot '+(d.state||'');
+    document.getElementById('footTag').textContent=d.tag||d.state||'Not connected';
+    document.getElementById('connectBtn').style.display=d.state==='connected'?'none':'';
+    document.getElementById('disconnectBtn').style.display=d.state==='connected'?'':'none';
+    if(document.getElementById('setStatus'))document.getElementById('setStatus').textContent=d.state==='connected'?'Online':(d.state||'—');
+  }catch{}
 }
 
-function removeKeyword(i) { settings.keywordAlerts.keywords.splice(i, 1); renderKwList(settings.keywordAlerts.keywords); }
-
-function renderKwList(list) {
-  document.getElementById('kwList').innerHTML = list.map((k, i) => `
-    <div class="item-row"><span class="it">${e(k)}</span>
-      <button class="icon-btn del" onclick="removeKeyword(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>`).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No keywords</div>`;
+async function toggleConnect(){
+  const cls=document.getElementById('footDot').className;
+  if(cls.includes('connected')){await fetch('/api/stop',{method:'POST'});toast('Disconnected','info')}
+  else{if(isDirty)await saveConfig();const r=await fetch('/api/start',{method:'POST'});const d=await r.json();if(!d.success)toast(d.error||'Failed','err')}
+  setTimeout(pollStatus,600)
 }
 
-// ── Token validation ───────────────────────────────────────────────────────
-async function validateToken() {
-  const box = document.getElementById('tokenValidResult');
-  box.innerHTML = '<div style="color:var(--text-2)">Validating…</div>';
-  try {
-    const r = await fetch('/api/validate-token');
-    const d = await r.json();
-    if (d.success) {
-      box.innerHTML = `<div style="text-align:center"><div style="font-size:20px;font-weight:700;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">${e(d.user.username)}</div><div style="font-size:11px;color:var(--text-2);margin-top:4px">ID: ${d.user.id}</div><div style="margin-top:8px"><span class="badge badge-green">✓ Valid</span></div></div>`;
-    } else {
-      box.innerHTML = `<div style="text-align:center"><span class="badge badge-red">✗ ${e(d.error)}</span></div>`;
-    }
-  } catch { box.innerHTML = `<div style="color:var(--red);font-size:13px">Validation failed</div>`; }
+// ── Presence ──────────────────────────────────────────────────────────────────
+function updatePreview(){
+  const t=gv('actType');
+  document.getElementById('streamUrlField').style.display=t==='STREAMING'?'':'none';
+  document.getElementById('prevType').textContent=t;
+  document.getElementById('prevName').textContent=gv('rpcName')||'Onyx';
+  const det=gv('rpcDetails'),sta=gv('rpcState');
+  const pd=document.getElementById('prevDetails'),ps=document.getElementById('prevState');
+  pd.textContent=det;pd.style.display=det?'':'none';ps.textContent=sta;ps.style.display=sta?'':'none';
 }
 
-// ── Connection ─────────────────────────────────────────────────────────────
-async function toggleConnect() {
-  const dotCls = document.getElementById('footDot').className;
-  if (dotCls.includes('connected')) {
-    await fetch('/api/stop', { method: 'POST' });
-    toast('Disconnected', 'info');
-  } else {
-    if (isDirty) await saveConfig();
-    const r = await fetch('/api/start', { method: 'POST' });
-    const d = await r.json();
-    if (!d.success) toast(d.error || 'Connection failed', 'err');
-  }
-  setTimeout(pollStatus, 600);
+function markDirty(){if(!isDirty){isDirty=true;document.getElementById('saveBar').classList.add('visible')}}
+
+async function validateToken(){
+  const box=document.getElementById('tokenValidResult');box.innerHTML='<div style="color:var(--text-2)">Validating…</div>';
+  try{const r=await fetch('/api/validate-token');const d=await r.json();
+    if(d.success){box.innerHTML=`<div style="text-align:center"><div style="font-size:18px;font-weight:700;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">${e(d.user.username)}</div><div style="font-size:11px;color:var(--text-2);margin-top:3px">ID: ${d.user.id}</div><div style="margin-top:7px"><span class="badge badge-green">✓ Valid</span></div></div>`}
+    else{box.innerHTML=`<div style="text-align:center"><span class="badge badge-red">✗ ${e(d.error)}</span></div>`}
+  }catch{box.innerHTML='<div style="color:var(--red);font-size:13px">Validation failed</div>'}
 }
 
-async function pollStatus() {
-  try {
-    const r = await fetch('/api/status');
-    const d = await r.json();
-    document.getElementById('footDot').className = 'dot ' + (d.state || '');
-    document.getElementById('footTag').textContent = d.tag || d.state || 'Not connected';
-    document.getElementById('aboutStatus').textContent = d.state === 'connected' ? 'Online' : (d.state || '—');
-    document.getElementById('connectBtn').style.display = d.state === 'connected' ? 'none' : '';
-    document.getElementById('disconnectBtn').style.display = d.state === 'connected' ? '' : 'none';
-  } catch {}
+// Rotation / idle helpers
+function addRotEntry(){const name=gv('rotName').trim();if(!name){toast('Enter a name','err');return}if(!settings.presenceRotation)settings.presenceRotation={enabled:false,intervalMinutes:5,presences:[]};settings.presenceRotation.presences.push({type:gv('rotType'),name,application_id:gv('rotAppId')||undefined});renderRotList(settings.presenceRotation.presences);sv('rotName','');sv('rotAppId','')}
+function removeRotEntry(i){settings.presenceRotation.presences.splice(i,1);renderRotList(settings.presenceRotation.presences)}
+function renderRotList(list){document.getElementById('rotList').innerHTML=list.map((p,i)=>`<div class="item-row"><span class="im">${e(p.type)}</span><span class="it">${e(p.name)}</span><button class="icon-btn del" onclick="removeRotEntry(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('')||'<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No entries</div>'}
+function addKeyword(){const kw=gv('kwInput').trim();if(!kw)return;if(!settings.keywordAlerts)settings.keywordAlerts={enabled:false,keywords:[]};settings.keywordAlerts.keywords.push(kw);renderKwList(settings.keywordAlerts.keywords);sv('kwInput','')}
+function removeKeyword(i){settings.keywordAlerts.keywords.splice(i,1);renderKwList(settings.keywordAlerts.keywords)}
+function renderKwList(list){document.getElementById('kwList').innerHTML=list.map((k,i)=>`<div class="item-row"><span class="it">${e(k)}</span><button class="icon-btn del" onclick="removeKeyword(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('')||'<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No keywords</div>'}
+
+// ── DM Inbox ──────────────────────────────────────────────────────────────────
+async function loadDMs(){
+  const list=document.getElementById('dmList');
+  list.innerHTML='<div style="color:var(--text-2);font-size:12px;text-align:center;padding:14px">Loading…</div>';
+  try{
+    const r=await fetch('/api/dms');const d=await r.json();
+    if(!d.success){list.innerHTML=`<div style="color:var(--red);font-size:12px;padding:10px">${e(d.error)}</div>`;return}
+    allDMs=d.channels||[];renderDMList(allDMs);
+  }catch(err){list.innerHTML=`<div style="color:var(--red);font-size:12px;padding:10px">${e(err.message)}</div>`}
 }
 
-// ── Preview ────────────────────────────────────────────────────────────────
-function updatePreview() {
-  const type = gv('actType');
-  document.getElementById('streamUrlField').style.display = type === 'STREAMING' ? '' : 'none';
-  document.getElementById('prevType').textContent = type;
-  document.getElementById('prevName').textContent = gv('rpcName') || 'Onyx';
-  const det = gv('rpcDetails'), sta = gv('rpcState');
-  const pd = document.getElementById('prevDetails'), ps = document.getElementById('prevState');
-  pd.textContent = det; pd.style.display = det ? '' : 'none';
-  ps.textContent = sta; ps.style.display = sta ? '' : 'none';
-}
+function filterDMs(){const q=gv('dmSearch').toLowerCase();renderDMList(allDMs.filter(c=>c.recipientName.toLowerCase().includes(q)))}
 
-function markDirty() {
-  if (!isDirty) { isDirty = true; document.getElementById('saveBar').classList.add('visible'); }
-}
-
-// ── Quests ─────────────────────────────────────────────────────────────────
-async function fetchQuests() {
-  const c = document.getElementById('questList');
-  c.innerHTML = '<div style="color:var(--text-2);font-size:13px;padding:16px 0">Loading…</div>';
-  try {
-    const r = await fetch('/api/quests');
-    const d = await r.json();
-    if (!d.success) { c.innerHTML = `<div style="color:var(--red);font-size:13px">${e(d.error)}</div>`; return; }
-    const quests = d.quests || [];
-    if (!quests.length) { c.innerHTML = '<div style="color:var(--text-2);font-size:13px;text-align:center;padding:24px 0">No quests available</div>'; return; }
-    c.innerHTML = '<div class="quest-grid">' + quests.map(q => {
-      const tag = q.completed ? '<span class="badge badge-green">Done</span>' :
-                  q.expired   ? '<span class="badge badge-red">Expired</span>' :
-                  q.type === 'PLAY_ON_DESKTOP' ? '<span class="badge badge-cyan">Play</span>' :
-                  '<span class="badge badge-purple">Video</span>';
-      const btn = (!q.completed && !q.expired) ? `<button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" onclick="startOneQuest('${q.id}')">Start</button>` : '';
-      return `<div class="quest-card"><div class="quest-game">${e(q.game || q.name)}</div><div class="quest-name">${e(q.name)}</div><div class="quest-foot">${tag}${btn}</div></div>`;
-    }).join('') + '</div>';
-  } catch (err) { c.innerHTML = `<div style="color:var(--red);font-size:13px">${e(err.message)}</div>`; }
-}
-
-async function startQuests() {
-  const r = await fetch('/api/quests/start', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
-  const d = await r.json();
-  if (!d.success) { toast(d.error || 'Start failed', 'err'); return; }
-  toast('Quests started', 'ok');
-  startQuestPoll();
-}
-
-async function startOneQuest(id) {
-  const r = await fetch('/api/quests/start', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ questId: id }) });
-  const d = await r.json();
-  if (!d.success) { toast(d.error || 'Failed', 'err'); return; }
-  toast('Quest started', 'ok');
-  startQuestPoll();
-}
-
-async function stopQuests() {
-  await fetch('/api/quests/stop', { method: 'POST' });
-  toast('Stopped', 'info');
-  stopQuestPoll();
-}
-
-function startQuestPoll() { if (!questPollTimer) { questPollTimer = setInterval(pollQuestStatus, 1500); pollQuestStatus(); } }
-function stopQuestPoll() { clearInterval(questPollTimer); questPollTimer = null; document.getElementById('questBanner').style.display = 'none'; document.getElementById('stopQuestBtn').style.display = 'none'; }
-
-async function pollQuestStatus() {
-  try {
-    const r = await fetch('/api/quests/status');
-    const d = await r.json();
-    const banner = document.getElementById('questBanner');
-    if (d.isRunning) {
-      banner.style.display = 'flex';
-      document.getElementById('questBannerText').textContent = d.currentQuest ? `Running: ${d.currentQuest.name}` : 'Running quests…';
-      document.getElementById('stopQuestBtn').style.display = '';
-    } else {
-      banner.style.display = 'none';
-      document.getElementById('stopQuestBtn').style.display = 'none';
-      if (questPollTimer) { stopQuestPoll(); loadQuestHistory(); }
-    }
-    renderLogs(d.logs || []);
-  } catch {}
-}
-
-function renderLogs(logs) {
-  const el = document.getElementById('logTerminal');
-  el.innerHTML = logs.map(l => {
-    const cls = l.includes('COMPLETED') ? 'log-ok' : l.includes('Error') || l.includes('error') ? 'log-err' : l.includes('Progress') || l.includes('Heartbeat') ? 'log-dim' : 'log-info';
-    return `<div class="${cls}">${e(l)}</div>`;
+function renderDMList(channels){
+  const list=document.getElementById('dmList');
+  if(!channels.length){list.innerHTML='<div style="color:var(--text-2);font-size:12px;text-align:center;padding:14px">No DMs found</div>';return}
+  list.innerHTML=channels.map(c=>{
+    const preview=c.lastMessage?.content||'';
+    const time=c.lastMessage?.timestamp?new Date(c.lastMessage.timestamp).toLocaleDateString():'';
+    const av=c.recipientAvatar?`<img src="${e(c.recipientAvatar)}" onerror="this.style.display='none'">`:'';
+    return`<div class="dm-item${activeDMChannel===c.id?' active':''}" onclick="openDM('${c.id}','${e(c.recipientName)}')">
+      <div class="dm-avatar">${av||initials(c.recipientName)}</div>
+      <div class="dm-info"><div class="dm-name">${e(c.recipientName)}</div><div class="dm-preview">${e(preview.slice(0,50))}</div></div>
+      <div style="font-size:10px;color:var(--text-3);flex-shrink:0">${time}</div>
+    </div>`;
   }).join('');
-  el.scrollTop = el.scrollHeight;
 }
 
-async function clearLogs() { await fetch('/api/quests/clear-logs', { method: 'POST' }); document.getElementById('logTerminal').innerHTML = ''; }
-
-async function loadQuestHistory() {
-  try {
-    const r = await fetch('/api/quests/history');
-    const d = await r.json();
-    const history = d.history || [];
-    document.getElementById('totalQuestsCompleted').textContent = history.filter(h => h.success).length;
-    const tbody = document.getElementById('historyBody');
-    if (!history.length) { tbody.innerHTML = '<tr><td colspan="3" class="dim" style="text-align:center;padding:20px">No history yet</td></tr>'; return; }
-    tbody.innerHTML = history.slice(0, 50).map(h => {
-      const dt = new Date(h.completedAt);
-      return `<tr><td>${e(h.name)}</td><td>${h.success ? '<span class="badge badge-green">Done</span>' : '<span class="badge badge-red">Failed</span>'}</td><td class="dim">${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}</td></tr>`;
+async function openDM(channelId, recipientName){
+  activeDMChannel=channelId;
+  document.getElementById('dmChatHeader').textContent=recipientName;
+  document.getElementById('dmInputBar').style.display='flex';
+  const msgs=document.getElementById('dmMessages');
+  msgs.innerHTML='<div class="dm-empty">Loading…</div>';
+  renderDMList(allDMs);
+  try{
+    const r=await fetch(`/api/dms/${channelId}/messages`);const d=await r.json();
+    if(!d.success){msgs.innerHTML=`<div class="dm-empty" style="color:var(--red)">${e(d.error)}</div>`;return}
+    if(!d.messages?.length){msgs.innerHTML='<div class="dm-empty">No messages</div>';return}
+    msgs.innerHTML=d.messages.map(m=>{
+      const cls=m.isSelf?'self':'other';
+      const av=m.authorAvatar?`<img src="${e(m.authorAvatar)}" onerror="this.style.display='none'">`:'';
+      const time=new Date(m.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      return`<div class="msg-row ${cls}">
+        <div class="msg-avatar">${av||initials(m.authorName)}</div>
+        <div><div class="msg-bubble">${e(m.content)}</div><div class="msg-time">${time}</div></div>
+      </div>`;
     }).join('');
-  } catch {}
+    msgs.scrollTop=msgs.scrollHeight;
+  }catch(err){msgs.innerHTML=`<div class="dm-empty" style="color:var(--red)">${e(err.message)}</div>`}
 }
 
-async function clearHistory() {
-  await fetch('/api/quests/history', { method: 'DELETE' });
-  document.getElementById('historyBody').innerHTML = '<tr><td colspan="3" class="dim" style="text-align:center;padding:20px">No history yet</td></tr>';
-  document.getElementById('totalQuestsCompleted').textContent = '0';
-  toast('History cleared', 'info');
+async function sendDMReply(){
+  const msg=gv('dmReplyInput').trim();if(!msg||!activeDMChannel)return;
+  sv('dmReplyInput','');
+  const r=await fetch(`/api/dms/${activeDMChannel}/send`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+  const d=await r.json();
+  if(d.success){setTimeout(()=>openDM(activeDMChannel,document.getElementById('dmChatHeader').textContent),500)}
+  else toast(d.error||'Failed','err')
 }
 
-// ── Auto Features ──────────────────────────────────────────────────────────
-async function loadAutoFeatures() {
-  try {
-    const r = await fetch('/api/auto');
-    const d = await r.json();
-    autoFeaturesCfg = d.config || {};
-    st('afkToggle', !!autoFeaturesCfg.afk?.enabled);
-    sv('afkMsg', autoFeaturesCfg.afk?.message || '');
-    sv('afkCooldown', Math.round((autoFeaturesCfg.afk?.cooldownMs || 300000) / 60000));
-    st('reactToggle', !!autoFeaturesCfg.autoReact?.enabled);
-    renderReactList(autoFeaturesCfg.autoReact?.textTriggers || {});
-    st('replyToggle', !!autoFeaturesCfg.autoReply?.enabled);
-    sv('replyCooldown', Math.round((autoFeaturesCfg.autoReply?.cooldownMs || 0) / 60000));
-    renderReplyList(autoFeaturesCfg.autoReply?.rules || []);
-    st('kwToggle', !!autoFeaturesCfg.keywordAlerts?.enabled || !!settings.keywordAlerts?.enabled);
-    renderKwList(settings.keywordAlerts?.keywords || autoFeaturesCfg.keywordAlerts?.keywords || []);
-  } catch {}
+// ── Server Browser ────────────────────────────────────────────────────────────
+async function loadServers(){
+  const grid=document.getElementById('serverGrid');
+  grid.innerHTML='<div style="color:var(--text-2);font-size:13px;text-align:center;padding:22px 0;grid-column:1/-1">Loading…</div>';
+  try{
+    const r=await fetch('/api/servers');const d=await r.json();
+    if(!d.success){grid.innerHTML=`<div style="color:var(--red);font-size:13px;grid-column:1/-1;text-align:center;padding:22px 0">${e(d.error)}</div>`;return}
+    allServers=d.guilds||[];
+    document.getElementById('serverCount').textContent=`${d.total} servers`;
+    renderServerGrid(allServers);
+  }catch(err){grid.innerHTML=`<div style="color:var(--red);font-size:13px;grid-column:1/-1;text-align:center;padding:22px 0">${e(err.message)}</div>`}
 }
 
-async function saveAutoFeatures() {
-  const payload = {
-    afk: { enabled: on('afkToggle'), message: gv('afkMsg'), cooldownMs: (parseInt(gv('afkCooldown')) || 5) * 60000 },
-    autoReact: { enabled: on('reactToggle'), userTriggers: autoFeaturesCfg.autoReact?.userTriggers || {}, textTriggers: autoFeaturesCfg.autoReact?.textTriggers || {} },
-    autoReply: { enabled: on('replyToggle'), cooldownMs: (parseInt(gv('replyCooldown')) || 0) * 60000, rules: autoFeaturesCfg.autoReply?.rules || [] },
-    keywordAlerts: { enabled: on('kwToggle'), keywords: settings.keywordAlerts?.keywords || [] }
-  };
-  try {
-    const r = await fetch('/api/auto', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-    const d = await r.json();
-    if (d.success) { autoFeaturesCfg = d.config; toast('Automation saved', 'ok'); }
-    else toast(d.error || 'Failed', 'err');
-  } catch { toast('Failed', 'err'); }
-  // Also persist keyword settings
-  const us = { ...settings, keywordAlerts: { enabled: on('kwToggle'), keywords: settings.keywordAlerts?.keywords || [] } };
-  fetch('/api/settings', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(us) }).catch(() => {});
+function filterServers(){const q=gv('serverSearch').toLowerCase();renderServerGrid(allServers.filter(g=>g.name.toLowerCase().includes(q)))}
+
+function renderServerGrid(guilds){
+  const grid=document.getElementById('serverGrid');
+  if(!guilds.length){grid.innerHTML='<div style="color:var(--text-2);font-size:13px;text-align:center;padding:22px 0;grid-column:1/-1">No servers found</div>';return}
+  grid.innerHTML=guilds.map(g=>{
+    const ic=g.icon?`<img src="${e(g.icon)}" onerror="this.style.display='none'">`:'';
+    const own=g.isOwner?'<span class="badge badge-purple" style="margin-top:4px">Owner</span>':'';
+    return`<div class="server-card">
+      <div class="server-icon">${ic||initials(g.name)}</div>
+      <div class="server-name">${e(g.name)}</div>
+      <div class="server-meta">${(g.memberCount||0).toLocaleString()} members</div>
+      ${own}
+    </div>`;
+  }).join('');
 }
 
-function addReactTrigger() {
-  const kw = gv('reactKw').trim(), emoji = gv('reactEmoji').trim();
-  if (!kw || !emoji) { toast('Enter keyword and emoji', 'err'); return; }
-  if (!autoFeaturesCfg.autoReact) autoFeaturesCfg.autoReact = { enabled: false, userTriggers: {}, textTriggers: {} };
-  if (!autoFeaturesCfg.autoReact.textTriggers) autoFeaturesCfg.autoReact.textTriggers = {};
-  autoFeaturesCfg.autoReact.textTriggers[kw] = [emoji];
-  renderReactList(autoFeaturesCfg.autoReact.textTriggers);
-  sv('reactKw', ''); sv('reactEmoji', '');
+// ── Accounts ──────────────────────────────────────────────────────────────────
+async function loadAccounts(){
+  try{
+    const r=await fetch('/api/accounts');const d=await r.json();
+    renderAccountList(d.accounts||[]);
+  }catch{}
 }
 
-function removeReactTrigger(kw) { delete autoFeaturesCfg.autoReact.textTriggers[kw]; renderReactList(autoFeaturesCfg.autoReact.textTriggers); }
-
-function renderReactList(triggers) {
-  document.getElementById('reactList').innerHTML = Object.entries(triggers || {}).map(([kw, em]) =>
-    `<div class="item-row"><span class="im">${e(em.join(' '))}</span><span class="it">${e(kw)}</span><button class="icon-btn del" onclick="removeReactTrigger('${e(kw)}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`
-  ).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No triggers</div>`;
+async function loadAccountsForSettings(){
+  try{const r=await fetch('/api/accounts');const d=await r.json();const el=document.getElementById('setAccounts');if(el)el.textContent=d.accounts?.length||0}catch{}
 }
 
-function addReplyRule() {
-  const match = gv('replyMatch').trim(), reply = gv('replyText').trim();
-  if (!match || !reply) { toast('Enter match and reply', 'err'); return; }
-  if (!autoFeaturesCfg.autoReply) autoFeaturesCfg.autoReply = { enabled: false, rules: [] };
-  autoFeaturesCfg.autoReply.rules.push({ match, reply, exact: false });
-  renderReplyList(autoFeaturesCfg.autoReply.rules);
-  sv('replyMatch', ''); sv('replyText', '');
+function renderAccountList(accounts){
+  const el=document.getElementById('accountList');
+  if(!accounts.length){el.innerHTML='<div style="color:var(--text-2);font-size:13px;text-align:center;padding:22px 0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg)">No accounts saved yet</div>';return}
+  el.innerHTML=accounts.map(a=>`
+    <div class="account-card${a.active?' active-acc':''}">
+      <div class="acc-avatar">${initials(a.nickname)}</div>
+      <div class="acc-info">
+        <div class="acc-name">${e(a.nickname)}${a.active?' <span class="badge badge-cyan" style="font-size:9px">Active</span>':''}</div>
+        <div class="acc-token">${e(a.tokenPreview)}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        ${!a.active?`<button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" onclick="switchAccount('${a.id}')">Switch</button>`:''}
+        <button class="icon-btn del" onclick="removeAccount('${a.id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>`).join('');
 }
 
-function removeReplyRule(i) { autoFeaturesCfg.autoReply.rules.splice(i, 1); renderReplyList(autoFeaturesCfg.autoReply.rules); }
-
-function renderReplyList(rules) {
-  document.getElementById('replyList').innerHTML = (rules || []).map((r, i) =>
-    `<div class="item-row"><span class="im">${e(r.match)}</span><span class="it">→ ${e(r.reply)}</span><button class="icon-btn del" onclick="removeReplyRule(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`
-  ).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">No rules</div>`;
+async function addAccount(){
+  const nickname=gv('accNickname').trim(),token=gv('accToken').trim();
+  if(!nickname||!token){toast('Fill both fields','err');return}
+  const r=await fetch('/api/accounts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nickname,token})});
+  const d=await r.json();
+  if(d.success){toast('Account saved','ok');sv('accNickname','');sv('accToken','');loadAccounts()}
+  else toast(d.error||'Failed','err')
 }
 
-// ── Messages ───────────────────────────────────────────────────────────────
-async function loadMessages() {
-  try {
-    const r = await fetch('/api/messages');
-    const d = await r.json();
-    renderScheduled(d.scheduled || []);
-    renderRecurring(d.recurring || []);
-  } catch {}
+async function switchAccount(id){
+  toast('Switching account…','info');
+  const r=await fetch('/api/accounts/switch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+  const d=await r.json();
+  if(d.success){toast(`Switched — connected as ${d.tag||'unknown'}!`,'ok');loadAccounts();pollStatus()}
+  else toast(d.error||'Switch failed','err')
 }
 
-async function addScheduled() {
-  const payload = { targetId: gv('schTarget'), message: gv('schMsg'), runAt: new Date(gv('schTime')).getTime() };
-  if (!payload.targetId || !payload.message || !payload.runAt) { toast('Fill all fields', 'err'); return; }
-  const r = await fetch('/api/messages/scheduled', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  const d = await r.json();
-  if (d.success) { toast('Scheduled!', 'ok'); loadMessages(); sv('schTarget',''); sv('schMsg',''); }
-  else toast(d.error || 'Failed', 'err');
+async function removeAccount(id){
+  await fetch(`/api/accounts/${id}`,{method:'DELETE'});loadAccounts()
 }
 
-async function addRecurring() {
-  const payload = { targetId: gv('recTarget'), message: gv('recMsg'), interval: parseInt(gv('recInterval')), unit: gv('recUnit') };
-  if (!payload.targetId || !payload.message || !payload.interval) { toast('Fill all fields', 'err'); return; }
-  const r = await fetch('/api/messages/recurring', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  const d = await r.json();
-  if (d.success) { toast('Added!', 'ok'); loadMessages(); sv('recTarget',''); sv('recMsg',''); }
-  else toast(d.error || 'Failed', 'err');
+// ── Backup / Restore ───────────────────────────────────────────────────────────
+function downloadBackup(){window.location.href='/api/backup';toast('Downloading backup…','info')}
+
+async function handleRestoreFile(input){
+  const file=input.files[0];if(!file)return;
+  try{
+    const text=await file.text();const data=JSON.parse(text);
+    const r=await fetch('/api/restore',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    const d=await r.json();
+    if(d.success){toast(`Restored: ${d.restored.join(', ')}`,'ok');await Promise.all([loadConfig(),loadSettingsData()])}
+    else toast(d.error||'Restore failed','err');
+  }catch(err){toast('Invalid backup file: '+err.message,'err')}
+  input.value='';
 }
 
-function renderScheduled(list) {
-  document.getElementById('scheduledList').innerHTML = list.map(m => {
-    const dt = new Date(m.runAt);
-    return `<div class="item-row"><span class="it">${e(m.targetId)}</span><span class="im">${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}</span><button class="icon-btn del" onclick="fetch('/api/messages/scheduled/${m.id}',{method:'DELETE'}).then(()=>loadMessages())"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`;
-  }).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:10px">None scheduled</div>`;
+// ── Quests ────────────────────────────────────────────────────────────────────
+async function fetchQuests(){
+  const c=document.getElementById('questList');c.innerHTML='<div style="color:var(--text-2);font-size:13px;padding:14px 0">Loading…</div>';
+  try{const r=await fetch('/api/quests');const d=await r.json();if(!d.success){c.innerHTML=`<div style="color:var(--red);font-size:13px">${e(d.error)}</div>`;return}
+    const quests=d.quests||[];if(!quests.length){c.innerHTML='<div style="color:var(--text-2);font-size:13px;text-align:center;padding:22px 0">No quests available</div>';return}
+    c.innerHTML='<div class="quest-grid">'+quests.map(q=>{
+      const tag=q.completed?'<span class="badge badge-green">Done</span>':q.expired?'<span class="badge badge-red">Expired</span>':q.type==='PLAY_ON_DESKTOP'?'<span class="badge badge-cyan">Play</span>':'<span class="badge badge-purple">Video</span>';
+      const btn=(!q.completed&&!q.expired)?`<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="startOneQuest('${q.id}')">Start</button>`:'';
+      return`<div class="quest-card"><div class="quest-game">${e(q.game||q.name)}</div><div class="quest-name">${e(q.name)}</div><div class="quest-foot">${tag}${btn}</div></div>`;
+    }).join('')+'</div>';
+  }catch(err){c.innerHTML=`<div style="color:var(--red);font-size:13px">${e(err.message)}</div>`}
 }
 
-function renderRecurring(list) {
-  document.getElementById('recurringList').innerHTML = list.map(m =>
-    `<div class="item-row"><span class="it">${e(m.targetId)}</span><span class="im">every ${m.interval} ${m.unit}</span><button class="icon-btn del" onclick="fetch('/api/messages/recurring/${m.id}',{method:'DELETE'}).then(()=>loadMessages())"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`
-  ).join('') || `<div style="color:var(--text-3);font-size:12px;text-align:center;padding:10px">None set</div>`;
+async function startQuests(){const r=await fetch('/api/quests/start',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const d=await r.json();if(!d.success){toast(d.error||'Failed','err');return}toast('Quests started','ok');startQuestPoll()}
+async function startOneQuest(id){const r=await fetch('/api/quests/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({questId:id})});const d=await r.json();if(!d.success){toast(d.error||'Failed','err');return}toast('Quest started','ok');startQuestPoll()}
+async function stopQuests(){await fetch('/api/quests/stop',{method:'POST'});toast('Stopped','info');stopQuestPoll()}
+function startQuestPoll(){if(!questPollTimer){questPollTimer=setInterval(pollQuestStatus,1500);pollQuestStatus()}}
+function stopQuestPoll(){clearInterval(questPollTimer);questPollTimer=null;document.getElementById('questBanner').style.display='none';document.getElementById('stopQuestBtn').style.display='none'}
+async function pollQuestStatus(){
+  try{const r=await fetch('/api/quests/status');const d=await r.json();
+    const banner=document.getElementById('questBanner');
+    if(d.isRunning){banner.style.display='flex';document.getElementById('questBannerText').textContent=d.currentQuest?`Running: ${d.currentQuest.name}`:'Running quests…';document.getElementById('stopQuestBtn').style.display=''}
+    else{banner.style.display='none';document.getElementById('stopQuestBtn').style.display='none';if(questPollTimer){stopQuestPoll();loadQuestHistory()}}
+    renderLogs(d.logs||[]);
+  }catch{}
 }
-
-// ── Utility ────────────────────────────────────────────────────────────────
-async function purgeMessages() {
-  const ch = gv('purgeChannel');
-  if (!ch) { toast('Enter a channel ID', 'err'); return; }
-  const r = await fetch('/api/util/purge', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ channelId: ch, count: parseInt(gv('purgeCount')) || 10 }) });
-  const d = await r.json();
-  d.success ? toast(`Deleted ${d.deleted} messages`, 'ok') : toast(d.error || 'Failed', 'err');
+function renderLogs(logs){const el=document.getElementById('logTerminal');el.innerHTML=logs.map(l=>{const cls=l.includes('COMPLETED')?'log-ok':l.includes('Error')||l.includes('error')?'log-err':l.includes('Progress')||l.includes('Heartbeat')?'log-dim':'log-info';return`<div class="${cls}">${e(l)}</div>`}).join('');el.scrollTop=el.scrollHeight}
+async function clearLogs(){await fetch('/api/quests/clear-logs',{method:'POST'});document.getElementById('logTerminal').innerHTML=''}
+async function loadQuestHistory(){
+  try{const r=await fetch('/api/quests/history');const d=await r.json();const history=d.history||[];
+    const el=document.getElementById('setQuestsTotal');if(el)el.textContent=history.filter(h=>h.success).length;
+    const tbody=document.getElementById('historyBody');if(!tbody)return;
+    if(!history.length){tbody.innerHTML='<tr><td colspan="3" class="dim" style="text-align:center;padding:18px">No history yet</td></tr>';return}
+    tbody.innerHTML=history.slice(0,50).map(h=>{const dt=new Date(h.completedAt);return`<tr><td>${e(h.name)}</td><td>${h.success?'<span class="badge badge-green">Done</span>':'<span class="badge badge-red">Failed</span>'}</td><td class="dim">${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}</td></tr>`}).join('')
+  }catch{}
 }
+async function clearHistory(){await fetch('/api/quests/history',{method:'DELETE'});document.getElementById('historyBody').innerHTML='<tr><td colspan="3" class="dim" style="text-align:center;padding:18px">No history yet</td></tr>';toast('History cleared','info')}
 
-async function sendMessage() {
-  const targetId = gv('sendTarget'), message = gv('sendMsg');
-  if (!targetId || !message) { toast('Fill all fields', 'err'); return; }
-  const r = await fetch('/api/util/send', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ targetId, message }) });
-  const d = await r.json();
-  if (d.success) { toast('Sent!', 'ok'); sv('sendMsg',''); }
-  else toast(d.error || 'Failed', 'err');
+// ── Auto Features ─────────────────────────────────────────────────────────────
+async function loadAutoFeatures(){
+  try{const r=await fetch('/api/auto');const d=await r.json();autoFeaturesCfg=d.config||{};
+    st('afkToggle',!!autoFeaturesCfg.afk?.enabled);sv('afkMsg',autoFeaturesCfg.afk?.message||'');sv('afkCooldown',Math.round((autoFeaturesCfg.afk?.cooldownMs||300000)/60000));
+    st('reactToggle',!!autoFeaturesCfg.autoReact?.enabled);renderReactList(autoFeaturesCfg.autoReact?.textTriggers||{});
+    st('replyToggle',!!autoFeaturesCfg.autoReply?.enabled);sv('replyCooldown',Math.round((autoFeaturesCfg.autoReply?.cooldownMs||0)/60000));renderReplyList(autoFeaturesCfg.autoReply?.rules||[]);
+    st('kwToggle',!!(autoFeaturesCfg.keywordAlerts?.enabled||settings.keywordAlerts?.enabled));renderKwList(settings.keywordAlerts?.keywords||autoFeaturesCfg.keywordAlerts?.keywords||[]);
+  }catch{}
 }
-
-async function massDm() {
-  const ids = gv('massIds').split('\n').map(s => s.trim()).filter(Boolean);
-  const message = gv('massMsg');
-  if (!ids.length || !message) { toast('Fill all fields', 'err'); return; }
-  const r = await fetch('/api/util/massdm', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ ids, message, delayMs: parseInt(gv('massDelay')) || 1500 }) });
-  const d = await r.json();
-  d.success ? toast(`Sent: ${d.sent}, Failed: ${d.failed}`, 'ok') : toast(d.error || 'Failed', 'err');
+async function saveAutoFeatures(){
+  const payload={afk:{enabled:on('afkToggle'),message:gv('afkMsg'),cooldownMs:(parseInt(gv('afkCooldown'))||5)*60000},autoReact:{enabled:on('reactToggle'),userTriggers:autoFeaturesCfg.autoReact?.userTriggers||{},textTriggers:autoFeaturesCfg.autoReact?.textTriggers||{}},autoReply:{enabled:on('replyToggle'),cooldownMs:(parseInt(gv('replyCooldown'))||0)*60000,rules:autoFeaturesCfg.autoReply?.rules||[]},keywordAlerts:{enabled:on('kwToggle'),keywords:settings.keywordAlerts?.keywords||[]}};
+  try{const r=await fetch('/api/auto',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();if(d.success){autoFeaturesCfg=d.config;toast('Saved','ok')}else toast(d.error||'Failed','err')}catch{toast('Failed','err')}
+  const us={...settings,keywordAlerts:{enabled:on('kwToggle'),keywords:settings.keywordAlerts?.keywords||[]}};
+  fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(us)}).catch(()=>{});
 }
+function addReactTrigger(){const kw=gv('reactKw').trim(),emoji=gv('reactEmoji').trim();if(!kw||!emoji){toast('Enter keyword and emoji','err');return}if(!autoFeaturesCfg.autoReact)autoFeaturesCfg.autoReact={enabled:false,userTriggers:{},textTriggers:{}};if(!autoFeaturesCfg.autoReact.textTriggers)autoFeaturesCfg.autoReact.textTriggers={};autoFeaturesCfg.autoReact.textTriggers[kw]=[emoji];renderReactList(autoFeaturesCfg.autoReact.textTriggers);sv('reactKw','');sv('reactEmoji','')}
+function removeReactTrigger(kw){delete autoFeaturesCfg.autoReact.textTriggers[kw];renderReactList(autoFeaturesCfg.autoReact.textTriggers)}
+function renderReactList(triggers){document.getElementById('reactList').innerHTML=Object.entries(triggers||{}).map(([kw,em])=>`<div class="item-row"><span class="im">${e(em.join(' '))}</span><span class="it">${e(kw)}</span><button class="icon-btn del" onclick="removeReactTrigger('${e(kw)}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('')||'<div style="color:var(--text-3);font-size:12px;text-align:center;padding:7px">No triggers</div>'}
+function addReplyRule(){const match=gv('replyMatch').trim(),reply=gv('replyText').trim();if(!match||!reply){toast('Enter match and reply','err');return}if(!autoFeaturesCfg.autoReply)autoFeaturesCfg.autoReply={enabled:false,rules:[]};autoFeaturesCfg.autoReply.rules.push({match,reply,exact:false});renderReplyList(autoFeaturesCfg.autoReply.rules);sv('replyMatch','');sv('replyText','')}
+function removeReplyRule(i){autoFeaturesCfg.autoReply.rules.splice(i,1);renderReplyList(autoFeaturesCfg.autoReply.rules)}
+function renderReplyList(rules){document.getElementById('replyList').innerHTML=(rules||[]).map((r,i)=>`<div class="item-row"><span class="im">${e(r.match)}</span><span class="it">→ ${e(r.reply)}</span><button class="icon-btn del" onclick="removeReplyRule(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('')||'<div style="color:var(--text-3);font-size:12px;text-align:center;padding:7px">No rules</div>'}
 
-// ── Settings page ──────────────────────────────────────────────────────────
-async function changePassword() {
-  const pw = gv('newPw'), confirm = gv('confirmPw');
-  if (!pw) { toast('Enter a password', 'err'); return; }
-  if (pw !== confirm) { toast("Passwords don't match", 'err'); return; }
-  const r = await fetch('/api/config', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ panel_pass: pw }) });
-  const d = await r.json();
-  if (d.success) { toast('Password updated — redirecting…', 'ok'); setTimeout(() => location.href = '/login', 2000); }
-  else toast(d.error || 'Failed', 'err');
-}
+// ── Messages ──────────────────────────────────────────────────────────────────
+async function loadMessages(){try{const r=await fetch('/api/messages');const d=await r.json();renderScheduled(d.scheduled||[]);renderRecurring(d.recurring||[])}catch{}}
+async function addScheduled(){const payload={targetId:gv('schTarget'),message:gv('schMsg'),runAt:new Date(gv('schTime')).getTime()};if(!payload.targetId||!payload.message||!payload.runAt){toast('Fill all fields','err');return}const r=await fetch('/api/messages/scheduled',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();if(d.success){toast('Scheduled!','ok');loadMessages();sv('schTarget','');sv('schMsg','')}else toast(d.error||'Failed','err')}
+async function addRecurring(){const payload={targetId:gv('recTarget'),message:gv('recMsg'),interval:parseInt(gv('recInterval')),unit:gv('recUnit')};if(!payload.targetId||!payload.message||!payload.interval){toast('Fill all fields','err');return}const r=await fetch('/api/messages/recurring',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();if(d.success){toast('Added!','ok');loadMessages();sv('recTarget','');sv('recMsg','')}else toast(d.error||'Failed','err')}
+function renderScheduled(list){document.getElementById('scheduledList').innerHTML=list.map(m=>{const dt=new Date(m.runAt);return`<div class="item-row"><span class="it">${e(m.targetId)}</span><span class="im">${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}</span><button class="icon-btn del" onclick="fetch('/api/messages/scheduled/${m.id}',{method:'DELETE'}).then(()=>loadMessages())"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`}).join('')||'<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">None scheduled</div>'}
+function renderRecurring(list){document.getElementById('recurringList').innerHTML=list.map(m=>`<div class="item-row"><span class="it">${e(m.targetId)}</span><span class="im">every ${m.interval} ${m.unit}</span><button class="icon-btn del" onclick="fetch('/api/messages/recurring/${m.id}',{method:'DELETE'}).then(()=>loadMessages())"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('')||'<div style="color:var(--text-3);font-size:12px;text-align:center;padding:8px">None set</div>'}
 
-// ── DOM helpers ────────────────────────────────────────────────────────────
-function gv(id) { return document.getElementById(id)?.value || ''; }
-function sv(id, v) { const el = document.getElementById(id); if (el) el.value = v; }
-function on(id) { return document.getElementById(id)?.classList.contains('on') || false; }
-function st(id, val) { const el = document.getElementById(id); if (el) el.classList.toggle('on', !!val); }
-function e(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// ── Utility ───────────────────────────────────────────────────────────────────
+async function purgeMessages(){const ch=gv('purgeChannel');if(!ch){toast('Enter a channel ID','err');return}const r=await fetch('/api/util/purge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channelId:ch,count:parseInt(gv('purgeCount'))||10})});const d=await r.json();d.success?toast(`Deleted ${d.deleted} messages`,'ok'):toast(d.error||'Failed','err')}
+async function sendMessage(){const targetId=gv('sendTarget'),message=gv('sendMsg');if(!targetId||!message){toast('Fill all fields','err');return}const r=await fetch('/api/util/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({targetId,message})});const d=await r.json();if(d.success){toast('Sent!','ok');sv('sendMsg','')}else toast(d.error||'Failed','err')}
+async function massDm(){const ids=gv('massIds').split('\n').map(s=>s.trim()).filter(Boolean);const message=gv('massMsg');if(!ids.length||!message){toast('Fill all fields','err');return}const r=await fetch('/api/util/massdm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids,message,delayMs:parseInt(gv('massDelay'))||1500})});const d=await r.json();d.success?toast(`Sent: ${d.sent}, Failed: ${d.failed}`,'ok'):toast(d.error||'Failed','err')}
 
-// ── Boot ───────────────────────────────────────────────────────────────────
+// ── Settings ──────────────────────────────────────────────────────────────────
+async function changePassword(){const pw=gv('newPw'),confirm=gv('confirmPw');if(!pw){toast('Enter a password','err');return}if(pw!==confirm){toast("Passwords don't match",'err');return}const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({panel_pass:pw})});const d=await r.json();if(d.success){toast('Password updated — redirecting…','ok');setTimeout(()=>location.href='/login',2000)}else toast(d.error||'Failed','err')}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
 init();
 </script>
 </body>

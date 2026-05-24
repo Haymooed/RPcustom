@@ -145,7 +145,6 @@ function saveLicense(data) {
 // Returns true when the panel should allow access (license valid or no secret set)
 function isLicensed() {
     if (isVercel) return true;
-    if (!process.env.LICENSE_SECRET) return true; // dev mode — no secret configured
     const stored = loadLicense();
     if (!stored?.key) return false;
     const result = validateKey(stored.key);

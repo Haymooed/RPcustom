@@ -585,9 +585,9 @@ app.post('/api/license/deactivate', (req, res) => {
 
 // License gate — redirect unlicensed users to /activate
 app.use((req, res, next) => {
-    if (isVercel || !process.env.LICENSE_SECRET) return next();
+    if (isVercel) return next();
     const skip = req.path === '/activate' || req.path === '/api/activate' ||
-                 req.path === '/login' || req.path.startsWith('/api/login') || req.path.startsWith('/public') ||
+                 req.path.startsWith('/public') ||
                  req.path === '/portal' || req.path.startsWith('/api/portal');
     if (skip) return next();
     if (!isLicensed()) return res.redirect('/activate');

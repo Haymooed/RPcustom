@@ -198,10 +198,12 @@ input::placeholder { color: #3d444d; }
           </button>
         </div>
       </div>
+      <% if (hasAdminKey) { %>
       <div class="field">
         <label>Admin Key <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#4d5562">(optional — unlocks Customers panel)</span></label>
         <input type="password" id="licenseKey" placeholder="Enter admin key to unlock all features">
       </div>
+      <% } %>
       <button class="btn" type="submit" id="loginBtn">Sign In</button>
     </form>
   </div>

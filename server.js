@@ -608,7 +608,7 @@ app.use((req, res, next) => {
 
 app.get('/login', (req, res) => {
     if (isVercel) return res.redirect('/');
-    res.render('login');
+    res.render('login', { hasAdminKey: !!getAdminKey() });
 });
 
 app.post('/api/login', (req, res) => {

@@ -13,11 +13,6 @@ const force = process.argv.includes('--force');
 const last = getLastReset();
 const hoursSince = last ? Math.round((Date.now() - last) / 3600000) : null;
 
-if (!process.env.LICENSE_SECRET) {
-    console.error('ERROR: LICENSE_SECRET is not set in your .env file.');
-    process.exit(1);
-}
-
 if (!force && last && Date.now() - last < 24 * 60 * 60 * 1000) {
     console.log(`\n  Keys were last reset ${hoursSince}h ago. Run with --force to override.\n`);
     process.exit(0);

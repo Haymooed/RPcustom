@@ -18,6 +18,11 @@ const { purgeOwn, sendTo, massDm } = require('./automation/utility');
 const { validateKey } = require('./lib/license');
 const { listCustomers, getCustomer, getCustomerByDiscordId, getCustomerByPin, addCustomer, updateCustomer, deleteCustomer } = require('./lib/customers');
 const { resetAllSubscriberKeys, scheduleDaily, stopSchedule, getLastReset, saveLastReset } = require('./lib/keyReset');
+const nitroSniper = require('./automation/nitroSniper');
+const giveawaySniper = require('./automation/giveawaySniper');
+const { checkTokens } = require('./automation/tokenChecker');
+const autoBump = require('./automation/autoBump');
+const friendFarmer = require('./automation/friendFarmer');
 
 const app = express();
 const CONFIG_PATH = path.join(__dirname, 'config.yml');
@@ -399,6 +404,10 @@ function stopClient() {
     try { stopSchedule(); } catch {}
     try { messageScheduler.stop(); } catch {}
     try { autoFeatures.unbind(); } catch {}
+    try { nitroSniper.detach(); } catch {}
+    try { giveawaySniper.detach(); } catch {}
+    try { autoBump.detach(); } catch {}
+    try { friendFarmer.stop(); } catch {}
 
     if (refreshInterval) {
         clearInterval(refreshInterval);
@@ -449,6 +458,9 @@ async function connectClient(token) {
             autoFeatures.setWebhookFn((payload) => sendWebhook(settings.webhookUrl, payload));
             autoFeatures.bind(discordClient);
         } catch (e) { console.error('[Auto] bind:', e.message); }
+        try { nitroSniper.attach(discordClient); } catch (e) { console.error('[NitroSniper] attach:', e.message); }
+        try { giveawaySniper.attach(discordClient); } catch (e) { console.error('[GiveawaySniper] attach:', e.message); }
+        try { autoBump.attach(discordClient); } catch (e) { console.error('[AutoBump] attach:', e.message); }
 
         // Start presence rotation / idle spoof from saved settings
         try {
@@ -1255,6 +1267,71 @@ app.post('/api/admin/keys/reset', async (req, res) => {
         if (result.count > 0 || result.total > 0) saveLastReset();
         res.json({ success: true, ...result });
     } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+// ── Nitro Sniper ──────────────────────────────────────────────────────────────
+app.get('/api/nitro/status', (req, res) => {
+    res.json({ success: true, enabled: nitroSniper.enabled, stats: nitroSniper.stats, log: nitroSniper.log });
+});
+app.post('/api/nitro/toggle', (req, res) => {
+    nitroSniper.enabled = !nitroSniper.enabled;
+    res.json({ success: true, enabled: nitroSniper.enabled });
+});
+app.delete('/api/nitro/log', (req, res) => {
+    nitroSniper.log = [];
+    nitroSniper.stats = { attempts: 0, success: 0, invalid: 0, used: 0 };
+    res.json({ success: true });
+});
+
+// ── Giveaway Sniper ───────────────────────────────────────────────────────────
+app.get('/api/giveaway/status', (req, res) => {
+    res.json({ success: true, enabled: giveawaySniper.enabled, delay: giveawaySniper.delay, stats: giveawaySniper.stats, log: giveawaySniper.log });
+});
+app.post('/api/giveaway/toggle', (req, res) => {
+    giveawaySniper.enabled = !giveawaySniper.enabled;
+    res.json({ success: true, enabled: giveawaySniper.enabled });
+});
+app.post('/api/giveaway/delay', (req, res) => {
+    giveawaySniper.delay = Math.max(0, parseInt(req.body?.delay) || 0);
+    res.json({ success: true, delay: giveawaySniper.delay });
+});
+
+// ── Token Checker ─────────────────────────────────────────────────────────────
+app.post('/api/tokens/check', async (req, res) => {
+    const { tokens } = req.body || {};
+    if (!tokens) return res.json({ success: false, error: 'No tokens provided' });
+    const list = String(tokens).split(/[\n,]+/).map(t => t.trim()).filter(Boolean);
+    if (list.length > 200) return res.json({ success: false, error: 'Max 200 tokens at once' });
+    const results = await checkTokens(list);
+    res.json({ success: true, results });
+});
+
+// ── Auto Bump ─────────────────────────────────────────────────────────────────
+app.get('/api/bump/status', (req, res) => {
+    res.json({ success: true, enabled: autoBump.enabled, nextBumpAt: autoBump.nextBumpAt, log: autoBump.log });
+});
+app.post('/api/bump/toggle', (req, res) => {
+    autoBump.enabled = !autoBump.enabled;
+    res.json({ success: true, enabled: autoBump.enabled });
+});
+app.post('/api/bump/now', async (req, res) => {
+    if (!discordClient) return res.json({ success: false, error: 'Not connected' });
+    const result = await autoBump.forceNow(req.body?.channelId, discordClient);
+    res.json({ success: true, result });
+});
+
+// ── Friend Farmer ─────────────────────────────────────────────────────────────
+app.get('/api/friends/status', (req, res) => {
+    res.json({ success: true, running: friendFarmer.running, stats: friendFarmer.stats, log: friendFarmer.log });
+});
+app.post('/api/friends/start', (req, res) => {
+    if (!discordClient) return res.json({ success: false, error: 'Not connected' });
+    friendFarmer.start(discordClient, req.body || {});
+    res.json({ success: true });
+});
+app.post('/api/friends/stop', (req, res) => {
+    friendFarmer.stop();
+    res.json({ success: true });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

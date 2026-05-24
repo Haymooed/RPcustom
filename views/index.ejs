@@ -284,6 +284,27 @@ td.dim{color:var(--text-2);font-size:12px}
     </div>
     <% } %>
     <div class="nav-sep"></div>
+    <div data-sec="nitro" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span>Nitro Sniper</span>
+    </div>
+    <div data-sec="giveaway" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+      <span>Giveaway Sniper</span>
+    </div>
+    <div data-sec="tokens" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>Token Checker</span>
+    </div>
+    <div data-sec="bump" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      <span>Auto Bump</span>
+    </div>
+    <div data-sec="friends" class="nav-item" onclick="showSection(this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>Friend Farmer</span>
+    </div>
+    <div class="nav-sep"></div>
     <div data-sec="settings" class="nav-item" onclick="showSection(this)">
       <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       <span>Settings</span>
@@ -732,6 +753,149 @@ td.dim{color:var(--text-2);font-size:12px}
 <!-- ══════════════════════════════════════════════════════
      SETTINGS
 ════════════════════════════════════════════════════════ -->
+<!-- ── Nitro Sniper ─────────────────────────────────────────────────────────── -->
+<div id="sec-nitro" class="section">
+  <div class="grid-4" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-val" id="nitroAttempts">0</div><div class="stat-lbl">Attempts</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:#22c55e" id="nitroSuccess">0</div><div class="stat-lbl">Redeemed</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:#f59e0b" id="nitroUsed">0</div><div class="stat-lbl">Already Used</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:#f85149" id="nitroInvalid">0</div><div class="stat-lbl">Invalid</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-weight:600;margin-bottom:2px">Nitro Sniper</div>
+        <div style="font-size:12px;color:var(--text-2)">Detects and redeems Discord Nitro gift links instantly across all servers</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn-sm" onclick="clearNitroLog()" style="background:rgba(248,81,73,.12);color:#f85149;border-color:rgba(248,81,73,.2)">Clear Log</button>
+        <button id="nitroToggleBtn" class="btn-sm primary" onclick="toggleNitro()">Enable</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Snipe Log</div>
+    <div id="nitroLog" style="font-size:12px;font-family:monospace;max-height:360px;overflow-y:auto">
+      <div style="color:var(--text-2);text-align:center;padding:24px">No snipes yet — enable the sniper and gift links will appear here</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Giveaway Sniper ──────────────────────────────────────────────────────── -->
+<div id="sec-giveaway" class="section">
+  <div class="grid-2" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-val" style="color:#22c55e" id="gwEntered">0</div><div class="stat-lbl">Entered</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:#f85149" id="gwFailed">0</div><div class="stat-lbl">Failed</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:600;margin-bottom:2px">Giveaway Sniper</div>
+        <div style="font-size:12px;color:var(--text-2)">Auto-enters giveaways from Carl-bot, GiveawayBot, and other popular bots</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        <label style="font-size:12px;color:var(--text-2)">Delay (ms)</label>
+        <input type="number" id="gwDelay" value="0" min="0" max="30000" style="width:80px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 8px;font-size:12px" onchange="setGwDelay()">
+        <button id="gwToggleBtn" class="btn-sm primary" onclick="toggleGiveaway()">Enable</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg> Entry Log</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead><tr style="color:var(--text-2)"><th style="text-align:left;padding:4px 8px">Time</th><th style="text-align:left;padding:4px 8px">Server</th><th style="text-align:left;padding:4px 8px">Prize</th><th style="text-align:left;padding:4px 8px">Status</th></tr></thead>
+      <tbody id="gwLog"><tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-2)">No entries yet</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Token Checker ───────────────────────────────────────────────────────── -->
+<div id="sec-tokens" class="section">
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title" style="margin-bottom:10px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Token Checker</div>
+    <textarea id="tokenInput" placeholder="Paste tokens here, one per line (max 200)" style="width:100%;height:120px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:monospace;padding:10px;resize:vertical;outline:none"></textarea>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+      <button class="btn-sm primary" onclick="checkTokensNow()" id="tokenCheckBtn">Check Tokens</button>
+      <span id="tokenStatus" style="font-size:12px;color:var(--text-2)"></span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px;display:flex;justify-content:space-between">
+      <span>Results</span>
+      <span id="tokenSummary" style="font-weight:400;font-size:12px;color:var(--text-2)"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;font-size:12px;border-collapse:collapse;min-width:600px">
+        <thead><tr style="color:var(--text-2)">
+          <th style="text-align:left;padding:4px 8px">Token</th>
+          <th style="text-align:left;padding:4px 8px">Username</th>
+          <th style="text-align:left;padding:4px 8px">ID</th>
+          <th style="text-align:left;padding:4px 8px">Nitro</th>
+          <th style="text-align:left;padding:4px 8px">Status</th>
+        </tr></thead>
+        <tbody id="tokenResults"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-2)">Paste tokens above and click Check</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Auto Bump ───────────────────────────────────────────────────────────── -->
+<div id="sec-bump" class="section">
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:600;margin-bottom:2px">Auto Bump</div>
+        <div style="font-size:12px;color:var(--text-2)">Detects Disboard bump confirmations and re-bumps automatically every 2 hours</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="nextBumpLabel" style="font-size:12px;color:var(--text-2)"></span>
+        <button id="bumpToggleBtn" class="btn-sm primary" onclick="toggleBump()">Enable</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title" style="margin-bottom:10px">Force Bump Now</div>
+    <div style="display:flex;gap:8px">
+      <input id="bumpChannelId" placeholder="Channel ID (e.g. 123456789012345678)" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 12px;outline:none">
+      <button class="btn-sm primary" onclick="forceBump()">Bump Now</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Bump Log</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead><tr style="color:var(--text-2)"><th style="text-align:left;padding:4px 8px">Time</th><th style="text-align:left;padding:4px 8px">Message</th></tr></thead>
+      <tbody id="bumpLog"><tr><td colspan="2" style="text-align:center;padding:20px;color:var(--text-2)">No bumps yet</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Friend Farmer ───────────────────────────────────────────────────────── -->
+<div id="sec-friends" class="section">
+  <div class="grid-3" style="margin-bottom:12px">
+    <div class="stat-card"><div class="stat-val" style="color:#22c55e" id="ffSent">0</div><div class="stat-lbl">Sent</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:#f85149" id="ffFailed">0</div><div class="stat-lbl">Failed</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--text-2)" id="ffSkipped">0</div><div class="stat-lbl">Skipped</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title" style="margin-bottom:12px">Friend Farmer</div>
+    <div class="grid-2" style="gap:10px;margin-bottom:12px">
+      <div><label style="font-size:11px;color:var(--text-2);display:block;margin-bottom:4px">SERVER ID</label><input id="ffServerId" placeholder="Right-click server → Copy ID" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 12px;outline:none"></div>
+      <div><label style="font-size:11px;color:var(--text-2);display:block;margin-bottom:4px">LIMIT</label><input id="ffLimit" type="number" value="50" min="1" max="1000" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 12px;outline:none"></div>
+      <div><label style="font-size:11px;color:var(--text-2);display:block;margin-bottom:4px">DELAY BETWEEN REQUESTS (ms)</label><input id="ffDelay" type="number" value="1500" min="500" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 12px;outline:none"></div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button id="ffStartBtn" class="btn-sm primary" style="flex:1;padding:9px" onclick="startFriendFarmer()">Start</button>
+        <button class="btn-sm" style="flex:1;padding:9px;background:rgba(248,81,73,.12);color:#f85149;border-color:rgba(248,81,73,.2)" onclick="stopFriendFarmer()">Stop</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Activity Log</div>
+    <div id="ffLog" style="font-size:12px;font-family:monospace;max-height:300px;overflow-y:auto">
+      <div style="color:var(--text-2);text-align:center;padding:24px">Idle</div>
+    </div>
+  </div>
+</div>
+
 <div id="sec-settings" class="section">
   <div class="grid-4" style="margin-bottom:12px">
     <div class="stat-card"><div class="stat-val">1.6.0</div><div class="stat-lbl">Version</div></div>
@@ -828,6 +992,10 @@ function showSection(el){
   if(sec==='servers')loadServers()
   if(sec==='accounts')loadAccounts()
   if(sec==='customers')loadCustomers()
+  if(sec==='nitro')loadNitro()
+  if(sec==='giveaway')loadGiveaway()
+  if(sec==='bump')loadBump()
+  if(sec==='friends')loadFriends()
   if(sec==='settings'){loadQuestHistory();loadAccountsForSettings();loadLicenseInfo()}
   if(sec==='dashboard')loadDashboard()
 }
@@ -1310,6 +1478,102 @@ async function adminResetAllKeys(){
   if(d.success){toast(`Reset ${d.count}/${d.total} keys${d.errors?.length?` (${d.errors.length} errors)`:''}`,d.count>0?'ok':'info');loadCustomers()}
   else toast(d.error||'Reset failed','err')
 }
+
+// ── Nitro Sniper ──────────────────────────────────────────────────────────────
+async function loadNitro(){
+  const d=await fetch('/api/nitro/status').then(r=>r.json()).catch(()=>({success:false}));
+  if(!d.success)return;
+  gv2('nitroAttempts',d.stats.attempts);gv2('nitroSuccess',d.stats.success);gv2('nitroUsed',d.stats.used);gv2('nitroInvalid',d.stats.invalid);
+  const btn=document.getElementById('nitroToggleBtn');
+  if(btn){btn.textContent=d.enabled?'Disable':'Enable';btn.style.background=d.enabled?'rgba(248,81,73,.15)':'';btn.style.color=d.enabled?'#f85149':'';}
+  const log=document.getElementById('nitroLog');
+  if(!log)return;
+  if(!d.log||!d.log.length){log.innerHTML='<div style="color:var(--text-2);text-align:center;padding:24px">No snipes yet</div>';return;}
+  log.innerHTML=d.log.map(e=>`<div style="padding:4px 6px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center"><span>${e.icon}</span><span style="color:var(--text-2);min-width:60px">${e.time}</span><span style="color:var(--text-2);min-width:100px">${e.server||''}</span><span style="font-family:monospace;color:#22d3ee;min-width:140px">${e.code}</span><span style="color:${e.type==='success'?'#22c55e':e.type==='used'?'#f59e0b':'#8b949e'}">${e.message}</span></div>`).join('');
+}
+function gv2(id,v){const el=document.getElementById(id);if(el)el.textContent=v??0;}
+async function toggleNitro(){await fetch('/api/nitro/toggle',{method:'POST'});loadNitro();}
+async function clearNitroLog(){await fetch('/api/nitro/log',{method:'DELETE'});loadNitro();}
+
+// ── Giveaway Sniper ───────────────────────────────────────────────────────────
+async function loadGiveaway(){
+  const d=await fetch('/api/giveaway/status').then(r=>r.json()).catch(()=>({success:false}));
+  if(!d.success)return;
+  gv2('gwEntered',d.stats.entered);gv2('gwFailed',d.stats.failed);
+  const btn=document.getElementById('gwToggleBtn');
+  if(btn){btn.textContent=d.enabled?'Disable':'Enable';btn.style.background=d.enabled?'rgba(248,81,73,.15)':'';btn.style.color=d.enabled?'#f85149':'';}
+  const delayEl=document.getElementById('gwDelay');if(delayEl)delayEl.value=d.delay||0;
+  const tbody=document.getElementById('gwLog');if(!tbody)return;
+  if(!d.log||!d.log.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-2)">No entries yet</td></tr>';return;}
+  tbody.innerHTML=d.log.map(e=>`<tr><td style="padding:4px 8px;color:var(--text-2)">${e.time}</td><td style="padding:4px 8px">${e.server}</td><td style="padding:4px 8px">${e.prize}</td><td style="padding:4px 8px;color:${e.type==='success'?'#22c55e':'#f85149'}">${e.status}</td></tr>`).join('');
+}
+async function toggleGiveaway(){await fetch('/api/giveaway/toggle',{method:'POST'});loadGiveaway();}
+async function setGwDelay(){const v=document.getElementById('gwDelay')?.value||0;await fetch('/api/giveaway/delay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({delay:parseInt(v)||0})});}
+
+// ── Token Checker ─────────────────────────────────────────────────────────────
+async function checkTokensNow(){
+  const input=document.getElementById('tokenInput')?.value?.trim();
+  if(!input){toast('Paste some tokens first','err');return;}
+  const btn=document.getElementById('tokenCheckBtn');const status=document.getElementById('tokenStatus');
+  if(btn)btn.disabled=true;if(status)status.textContent='Checking…';
+  const r=await fetch('/api/tokens/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tokens:input})});
+  const d=await r.json();
+  if(btn)btn.disabled=false;
+  if(!d.success){if(status)status.textContent=d.error||'Error';return;}
+  const valid=d.results.filter(x=>x.valid).length;
+  if(status)status.textContent=`${valid} valid / ${d.results.length-valid} invalid`;
+  const summary=document.getElementById('tokenSummary');if(summary)summary.textContent=`${valid} / ${d.results.length} valid`;
+  const tbody=document.getElementById('tokenResults');if(!tbody)return;
+  tbody.innerHTML=d.results.map(t=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:5px 8px;font-family:monospace;color:var(--text-2)">${t.token.slice(0,20)}…</td>
+    <td style="padding:5px 8px">${t.username?`${t.username}${t.discriminator&&t.discriminator!=='0'?'#'+t.discriminator:''}`:'-'}</td>
+    <td style="padding:5px 8px;font-family:monospace;font-size:11px">${t.id||'-'}</td>
+    <td style="padding:5px 8px;color:${t.nitro?'#f59e0b':'var(--text-2)'}">${t.nitroType||'-'}</td>
+    <td style="padding:5px 8px"><span style="color:${t.valid?'#22c55e':'#f85149'};font-weight:600">${t.valid?'✓ Valid':'✗ '+t.reason}</span></td>
+  </tr>`).join('');
+}
+
+// ── Auto Bump ─────────────────────────────────────────────────────────────────
+async function loadBump(){
+  const d=await fetch('/api/bump/status').then(r=>r.json()).catch(()=>({success:false}));
+  if(!d.success)return;
+  const btn=document.getElementById('bumpToggleBtn');
+  if(btn){btn.textContent=d.enabled?'Disable':'Enable';btn.style.background=d.enabled?'rgba(248,81,73,.15)':'';btn.style.color=d.enabled?'#f85149':'';}
+  const label=document.getElementById('nextBumpLabel');
+  if(label)label.textContent=d.nextBumpAt?`Next: ${new Date(d.nextBumpAt).toLocaleTimeString()}`:'';
+  const tbody=document.getElementById('bumpLog');if(!tbody)return;
+  if(!d.log||!d.log.length){tbody.innerHTML='<tr><td colspan="2" style="text-align:center;padding:20px;color:var(--text-2)">No bumps yet</td></tr>';return;}
+  tbody.innerHTML=d.log.map(e=>`<tr><td style="padding:4px 8px;color:var(--text-2)">${e.time}</td><td style="padding:4px 8px;color:${e.type==='success'?'#22c55e':e.type==='error'?'#f85149':'var(--text)'}">${e.message}</td></tr>`).join('');
+}
+async function toggleBump(){await fetch('/api/bump/toggle',{method:'POST'});loadBump();}
+async function forceBump(){
+  const ch=document.getElementById('bumpChannelId')?.value?.trim();
+  await fetch('/api/bump/now',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channelId:ch})});
+  toast('Bump sent!','ok');loadBump();
+}
+
+// ── Friend Farmer ─────────────────────────────────────────────────────────────
+let ffPollTimer=null;
+async function loadFriends(){
+  const d=await fetch('/api/friends/status').then(r=>r.json()).catch(()=>({success:false}));
+  if(!d.success)return;
+  gv2('ffSent',d.stats.sent);gv2('ffFailed',d.stats.failed);gv2('ffSkipped',d.stats.skipped);
+  const btn=document.getElementById('ffStartBtn');if(btn)btn.textContent=d.running?'Running…':'Start';
+  const log=document.getElementById('ffLog');if(!log)return;
+  if(!d.log||!d.log.length){log.innerHTML='<div style="color:var(--text-2);text-align:center;padding:24px">Idle</div>';return;}
+  log.innerHTML=d.log.map(e=>`<div style="padding:2px 0;color:${e.type==='success'?'#22c55e':e.type==='error'?'#f85149':'var(--text-2)'}"><span style="color:var(--text-2)">[${e.time}]</span> ${e.message}</div>`).join('');
+  if(d.running&&!ffPollTimer)ffPollTimer=setInterval(loadFriends,2000);
+  if(!d.running&&ffPollTimer){clearInterval(ffPollTimer);ffPollTimer=null;}
+}
+async function startFriendFarmer(){
+  const serverId=document.getElementById('ffServerId')?.value?.trim();
+  const limit=document.getElementById('ffLimit')?.value||50;
+  const delay=document.getElementById('ffDelay')?.value||1500;
+  if(!serverId){toast('Enter a server ID','err');return;}
+  await fetch('/api/friends/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({serverId,limit:parseInt(limit),delay:parseInt(delay),skipFriends:true})});
+  toast('Friend farmer started','ok');loadFriends();
+}
+async function stopFriendFarmer(){await fetch('/api/friends/stop',{method:'POST'});toast('Stopped','info');loadFriends();}
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 init();

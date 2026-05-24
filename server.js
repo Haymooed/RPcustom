@@ -16,7 +16,7 @@ const { MessageScheduler } = require('./automation/messages');
 const { AutoFeatures } = require('./automation/autoFeatures');
 const { purgeOwn, sendTo, massDm } = require('./automation/utility');
 const { validateKey } = require('./lib/license');
-const { listCustomers, getCustomer, getCustomerByDiscordId, addCustomer, updateCustomer, deleteCustomer } = require('./lib/customers');
+const { listCustomers, getCustomer, getCustomerByDiscordId, getCustomerByPin, addCustomer, updateCustomer, deleteCustomer } = require('./lib/customers');
 const { resetAllSubscriberKeys, scheduleDaily, stopSchedule, getLastReset, saveLastReset } = require('./lib/keyReset');
 
 const app = express();
@@ -1268,9 +1268,8 @@ app.post('/api/portal/key', async (req, res) => {
     try {
         const { discordId, portalPin } = req.body || {};
         if (!discordId || !portalPin) return res.json({ success: false, error: 'Discord ID and PIN required' });
-        const customer = await getCustomerByDiscordId(discordId.trim());
-        if (!customer) return res.json({ success: false, error: 'Customer not found — check your Discord ID' });
-        if (customer.portalPin !== portalPin.trim().toUpperCase()) return res.json({ success: false, error: 'Invalid PIN' });
+        const customer = await getCustomerByPin(discordId.trim(), portalPin.trim());
+        if (!customer) return res.json({ success: false, error: 'Customer not found — check your Discord ID and PIN' });
         if (!customer.active) return res.json({ success: false, error: 'Your subscription is not active' });
         if (!customer.currentKey) return res.json({ success: false, error: 'No key assigned yet — contact your seller' });
         const expiry = customer.keyExpiresAt ? new Date(customer.keyExpiresAt) : null;
